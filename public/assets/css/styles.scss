@@ -1,0 +1,23 @@
+/* 
+ * styles.scss
+ * This file provides variables for compilation if a preprocessor is used.
+ * Compiled vanilla CSS is available in styles.css.
+ */
+
+$primary: #6366f1;
+$secondary: #f43f5e;
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+$info: #3b82f6;
+
+$bg-body: #f8fafc;
+$bg-surface: #ffffff;
+$bg-sidebar: #1e1e2f;
+
+$font-family: 'Inter', sans-serif;
+
+/* Import the plain CSS variables and styles as base */
+@import 'styles.css';
+
+/* Additional SCSS mixins and nested rules could go here */
