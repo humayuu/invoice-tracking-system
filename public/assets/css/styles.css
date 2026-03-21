@@ -45,9 +45,6 @@
     --transition-speed: 0.3s;
 }
 
-/* ============================================
-   DARK MODE THEME
-   ============================================ */
 [data-bs-theme="dark"] {
     --bg-body: #0f0f1a;
     --bg-surface: #1a1a2e;
@@ -64,9 +61,6 @@
         0 4px 24px -2px rgb(0 0 0 / 0.4), 0 2px 8px -2px rgb(0 0 0 / 0.2);
 }
 
-/* ============================================
-   RESET & BASE
-   ============================================ */
 *,
 *::before,
 *::after {
@@ -75,6 +69,13 @@
 
 html {
     scroll-behavior: smooth;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -86,6 +87,9 @@ body {
         color var(--transition-speed) ease;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    display: flex;
+    align-items: stretch;
+    min-height: 100vh;
 }
 
 [dir="rtl"] {
@@ -138,7 +142,6 @@ a:hover {
     color: var(--primary-color);
     font-size: 1.4rem;
     margin-right: 0.8rem;
-    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
     flex-shrink: 0;
 }
 
@@ -251,10 +254,12 @@ a:hover {
     font-size: 0.75rem;
     opacity: 0.5;
 }
+
 [dir="rtl"] .sidebar-link .toggle-icon {
     margin-left: 0;
     margin-right: auto;
 }
+
 .sidebar-link[aria-expanded="true"] .toggle-icon {
     transform: rotate(180deg);
 }
@@ -264,15 +269,18 @@ a:hover {
     padding-left: 2.5rem !important;
     margin-top: 0.15rem;
 }
+
 [dir="rtl"] .sidebar-submenu {
     padding-left: 0 !important;
     padding-right: 2.5rem !important;
 }
+
 .sidebar-submenu .sidebar-link {
     padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
     color: rgba(255, 255, 255, 0.45);
 }
+
 .sidebar-submenu .sidebar-link::before {
     content: "";
     display: inline-block;
@@ -284,17 +292,18 @@ a:hover {
     flex-shrink: 0;
     transition: background 0.2s;
 }
+
 .sidebar-submenu .sidebar-link:hover::before,
 .sidebar-submenu .sidebar-link.active::before {
     background: #8b5cf6;
 }
 
-/* Collapsed state */
 .sidebar.collapsed .sidebar-header span,
 .sidebar.collapsed .sidebar-link span,
 .sidebar.collapsed .toggle-icon {
     display: none;
 }
+
 .sidebar.collapsed .sidebar-submenu {
     display: none !important;
 }
@@ -338,21 +347,23 @@ a:hover {
     transition: all 0.2s;
     line-height: 1;
 }
+
 #sidebar-toggle:hover {
     color: var(--primary-color);
     background-color: rgba(99, 102, 241, 0.08);
 }
 
-/* Search */
 .search-form {
     position: relative;
     display: none;
 }
+
 @media (min-width: 768px) {
     .search-form {
         display: block;
     }
 }
+
 .search-form input {
     background-color: var(--bg-body);
     border: 1.5px solid var(--border-color);
@@ -363,9 +374,11 @@ a:hover {
     font-size: 0.875rem;
     transition: all 0.25s ease;
 }
+
 .search-form input::placeholder {
     color: var(--text-muted);
 }
+
 .search-form input:focus {
     outline: none;
     border-color: var(--primary-color);
@@ -373,6 +386,7 @@ a:hover {
     width: 290px;
     background-color: var(--bg-surface);
 }
+
 .search-form i {
     position: absolute;
     left: 0.875rem;
@@ -382,6 +396,7 @@ a:hover {
     font-size: 0.85rem;
     pointer-events: none;
 }
+
 [dir="rtl"] .search-form input {
     padding: 0.45rem 2.5rem 0.45rem 1rem;
 }
@@ -390,7 +405,6 @@ a:hover {
     right: 0.875rem;
 }
 
-/* Topbar Actions */
 .topbar-action {
     position: relative;
     color: var(--text-muted);
@@ -403,21 +417,10 @@ a:hover {
     border-radius: var(--radius-md);
     line-height: 1;
 }
+
 .topbar-action:hover {
     color: var(--primary-color);
     background: rgba(99, 102, 241, 0.08);
-}
-
-/* Dark mode toggle animated icon */
-#dark-mode-toggle {
-    position: relative;
-    overflow: hidden;
-}
-#dark-mode-toggle i {
-    transition:
-        transform 0.4s ease,
-        opacity 0.3s ease;
-    display: inline-block;
 }
 
 .badge-notify {
@@ -433,7 +436,6 @@ a:hover {
     line-height: 1;
 }
 
-/* User avatar & info */
 .user-avatar {
     width: 38px;
     height: 38px;
@@ -442,6 +444,7 @@ a:hover {
     border: 2px solid var(--border-color);
     transition: border-color 0.2s;
 }
+
 .user-avatar:hover {
     border-color: var(--primary-color);
 }
@@ -451,6 +454,7 @@ a:hover {
     font-size: 0.875rem;
     color: var(--text-main);
 }
+
 .user-role {
     font-size: 0.72rem;
     color: var(--text-muted);
@@ -465,17 +469,6 @@ a:hover {
     box-shadow: var(--shadow-lg);
     border-radius: var(--radius-lg);
     padding: 0.35rem;
-    animation: dropdownFade 0.15s ease-out;
-}
-@keyframes dropdownFade {
-    from {
-        opacity: 0;
-        transform: translateY(-6px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
 }
 
 .dropdown-item {
@@ -485,18 +478,22 @@ a:hover {
     font-size: 0.875rem;
     transition: all 0.15s;
 }
+
 .dropdown-item:hover {
     background-color: rgba(99, 102, 241, 0.07);
     color: var(--primary-color);
 }
+
 .dropdown-item.text-danger:hover {
     background-color: rgba(239, 68, 68, 0.07);
     color: var(--danger-color) !important;
 }
+
 .dropdown-divider {
     border-top-color: var(--border-color);
     margin: 0.35rem 0;
 }
+
 .dropdown-header {
     color: var(--text-muted);
     font-size: 0.72rem;
@@ -514,6 +511,7 @@ a:hover {
     flex: 1;
     overflow-y: auto;
 }
+
 .page-content::-webkit-scrollbar {
     width: 5px;
 }
@@ -525,7 +523,6 @@ a:hover {
     border-radius: 4px;
 }
 
-/* Page title */
 .page-title {
     font-size: 1.35rem;
     font-weight: 700;
@@ -545,12 +542,11 @@ a:hover {
     margin-bottom: 1.5rem;
     transition:
         box-shadow 0.25s ease,
-        transform 0.25s ease,
         border-color 0.25s ease;
 }
+
 .card:hover {
     box-shadow: var(--shadow-md) !important;
-    transform: translateY(-3px);
     border-color: rgba(99, 102, 241, 0.15) !important;
 }
 
@@ -559,6 +555,7 @@ a:hover {
     border-bottom: 1px solid var(--border-color) !important;
     padding: 1.125rem 1.5rem !important;
 }
+
 .card-title {
     font-weight: 700;
     margin: 0;
@@ -566,16 +563,17 @@ a:hover {
     font-size: 0.975rem;
     letter-spacing: -0.01em;
 }
+
 .card-footer {
     background-color: transparent !important;
     border-top: 1px solid var(--border-color) !important;
 }
 
-/* KPI Cards - accent border */
 .kpi-card {
     position: relative;
     overflow: hidden;
 }
+
 .kpi-card::after {
     content: "";
     position: absolute;
@@ -585,6 +583,7 @@ a:hover {
     height: 3px;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
+
 .kpi-card.kpi-primary::after {
     background: linear-gradient(90deg, #6366f1, #8b5cf6);
 }
@@ -608,10 +607,6 @@ a:hover {
     font-size: 1.5rem;
     margin-right: 1.125rem;
     flex-shrink: 0;
-    transition: transform 0.3s;
-}
-.card:hover .kpi-icon {
-    transform: scale(1.1) rotate(-3deg);
 }
 
 [dir="rtl"] .kpi-icon {
@@ -643,12 +638,14 @@ a:hover {
     color: var(--text-main);
     letter-spacing: -0.03em;
 }
+
 .kpi-info p {
     color: var(--text-muted);
     margin: 0;
     font-size: 0.82rem;
     font-weight: 500;
 }
+
 .kpi-trend {
     font-size: 0.75rem;
     font-weight: 600;
@@ -659,6 +656,7 @@ a:hover {
     align-items: center;
     gap: 0.2em;
 }
+
 .kpi-trend.up {
     color: var(--success-color);
     background: rgba(16, 185, 129, 0.1);
@@ -678,7 +676,7 @@ a:hover {
 }
 
 /* ============================================
-   TABLES — Full dark mode support
+   TABLES
    ============================================ */
 .table {
     color: var(--text-main);
@@ -688,7 +686,6 @@ a:hover {
     --bs-table-border-color: var(--border-color);
 }
 
-/* Fix: thead doesn't use bg-light class — use custom var */
 .table thead,
 .table-thead {
     background-color: var(--thead-bg) !important;
@@ -717,6 +714,7 @@ a:hover {
 .table-hover tbody tr {
     transition: background-color 0.15s ease;
 }
+
 .table-hover tbody tr:hover {
     background-color: rgba(99, 102, 241, 0.04) !important;
     --bs-table-accent-bg: rgba(99, 102, 241, 0.04);
@@ -726,7 +724,6 @@ a:hover {
     background-color: rgba(99, 102, 241, 0.08) !important;
 }
 
-/* Override Bootstrap's bg-light on thead for dark mode */
 [data-bs-theme="dark"] .table thead.bg-light,
 [data-bs-theme="dark"] thead.bg-light,
 [data-bs-theme="dark"] .bg-light:not(.btn):not(body) {
@@ -755,9 +752,11 @@ a:hover {
     font-size: 0.9rem;
     transition: all 0.2s ease;
 }
+
 .form-control::placeholder {
     color: var(--text-muted);
 }
+
 .form-control:focus,
 .form-select:focus {
     background-color: var(--bg-surface);
@@ -767,7 +766,6 @@ a:hover {
     outline: none;
 }
 
-/* Input group */
 .input-group-text {
     background-color: var(--input-bg) !important;
     border-color: var(--border-color) !important;
@@ -777,7 +775,6 @@ a:hover {
         border-color var(--transition-speed) ease;
 }
 
-/* Floating labels */
 .form-floating > .form-control:focus ~ label,
 .form-floating > .form-control:not(:placeholder-shown) ~ label,
 .form-floating > .form-select ~ label {
@@ -785,45 +782,29 @@ a:hover {
     font-weight: 600;
     font-size: 0.825rem;
 }
+
 .form-floating > label {
     color: var(--text-muted);
 }
 
-/* Form check */
 .form-check-input {
     background-color: var(--input-bg);
     border-color: var(--border-color);
 }
+
 .form-check-input:checked {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
+
 .form-check-label {
     color: var(--text-main);
 }
+
 .form-label {
     color: var(--text-main);
     font-weight: 500;
     font-size: 0.875rem;
-}
-
-/* ============================================
-   BUTTONS
-   ============================================ */
-.btn-primary {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border: none;
-    font-weight: 600;
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
-}
-.btn-primary:hover {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
-    transform: translateY(-1px);
-}
-.btn-primary:active {
-    transform: translateY(0);
 }
 
 /* ============================================
@@ -844,11 +825,13 @@ a:hover {
     cursor: pointer;
     font-size: 0.85rem;
 }
+
 .btn-action:hover {
     color: var(--primary-color);
     border-color: var(--primary-color);
     background: rgba(99, 102, 241, 0.08);
 }
+
 .btn-action.text-danger:hover {
     color: var(--danger-color) !important;
     border-color: var(--danger-color) !important;
@@ -861,6 +844,7 @@ a:hover {
 .pagination {
     margin-bottom: 0;
 }
+
 .page-link {
     background-color: var(--bg-surface);
     border-color: var(--border-color);
@@ -869,16 +853,19 @@ a:hover {
     padding: 0.4rem 0.75rem;
     transition: all 0.15s;
 }
+
 .page-link:hover {
     background-color: rgba(99, 102, 241, 0.08);
     border-color: var(--primary-color);
     color: var(--primary-color);
 }
+
 .page-item.active .page-link {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     box-shadow: 0 2px 8px var(--primary-glow);
 }
+
 .page-item.disabled .page-link {
     background-color: var(--bg-body);
     color: var(--text-muted);
@@ -921,7 +908,6 @@ a:hover {
     .sidebar.collapsed {
         left: calc(-1 * var(--sidebar-width));
     }
-
     .page-content {
         padding: 1.25rem;
     }
@@ -937,33 +923,36 @@ a:hover {
     box-shadow: var(--shadow-lg);
     color: var(--text-main);
 }
+
 .modal-header {
     border-bottom: 1px solid var(--border-color);
     padding: 1.25rem 1.5rem;
 }
+
 .modal-footer {
     border-top: 1px solid var(--border-color);
 }
+
 .modal-title {
     font-weight: 700;
     color: var(--text-main);
 }
-.btn-close {
-    filter: var(--bs-btn-close-filter, none);
-}
+
 [data-bs-theme="dark"] .btn-close {
     filter: invert(1) grayscale(100%) brightness(200%);
 }
 
 /* ============================================
-   ALERTS & MISC
+   ALERTS
    ============================================ */
 .alert {
     border-radius: var(--radius-lg);
     border: 1px solid transparent;
 }
 
-/* Text utilities using CSS vars */
+/* ============================================
+   TEXT & BG UTILITIES
+   ============================================ */
 .text-main {
     color: var(--text-main) !important;
 }
@@ -973,90 +962,13 @@ a:hover {
 .bg-surface {
     background-color: var(--bg-surface) !important;
 }
-
-/* ============================================
-   ANIMATIONS
-   ============================================ */
-.fade-up {
-    animation: fadeUp 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(14px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
-}
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* Stagger children */
-.stagger-children > * {
-    animation: fadeUp 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
-}
-.stagger-children > *:nth-child(1) {
-    animation-delay: 0.05s;
-}
-.stagger-children > *:nth-child(2) {
-    animation-delay: 0.1s;
-}
-.stagger-children > *:nth-child(3) {
-    animation-delay: 0.15s;
-}
-.stagger-children > *:nth-child(4) {
-    animation-delay: 0.2s;
-}
-
-/* Pulse animation for indicators */
-@keyframes pulse-ring {
-    0% {
-        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 8px rgba(99, 102, 241, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
-    }
-}
-.pulse {
-    animation: pulse-ring 2s infinite;
-}
-
-/* ============================================
-   CURSOR HELPERS
-   ============================================ */
 .cursor-pointer {
     cursor: pointer;
 }
-html,
-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
 
-body {
-    display: flex;
-    align-items: stretch;
-    min-height: 100vh;
-    background-color: var(--bg-body);
-}
-
-/* Left panel */
+/* ============================================
+   LOGIN PAGE
+   ============================================ */
 .login-left {
     display: none;
     flex: 1;
@@ -1140,7 +1052,6 @@ body {
     line-height: 1.65;
 }
 
-/* Feature list */
 .feature-list {
     list-style: none;
     padding: 0;
@@ -1170,7 +1081,6 @@ body {
     flex-shrink: 0;
 }
 
-/* Right panel */
 .login-right {
     width: 100%;
     max-width: 480px;
@@ -1193,7 +1103,6 @@ body {
     max-width: 380px;
 }
 
-/* Theme toggle on login */
 .login-theme-btn {
     position: fixed;
     top: 1.25rem;
@@ -1219,7 +1128,6 @@ body {
     background: rgba(99, 102, 241, 0.08);
 }
 
-/* Divider */
 .or-divider {
     display: flex;
     align-items: center;
