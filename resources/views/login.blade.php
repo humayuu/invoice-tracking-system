@@ -75,11 +75,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label class="form-label mb-0" for="password">Password</label>
-                                    <a href="#" class="text-decoration-none small"
-                                        style="color:var(--primary-color);font-weight:500;">Forgot password?</a>
-                                </div>
+                                <label class="form-label" for="password">Password</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                                     <input type="password" class="form-control" id="password" name="password"
@@ -92,6 +88,10 @@
                                 @error('password')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <a href="#" class="text-decoration-none small"
+                                        style="color:var(--primary-color);font-weight:500;">Forgot password?</a>
+                                </div>
                             </div>
 
                             <div class="mb-4 d-flex align-items-center justify-content-between">

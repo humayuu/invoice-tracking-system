@@ -11,7 +11,7 @@
             </div>
         @endif
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold mb-0">All Suppliers</h4>
+            <h4 class="fw-bold mb-0">Suppliers</h4>
             <a href="{{ route('supplier.create') }}" class="btn btn-primary shadow-sm">
                 <i class="fa-solid fa-plus me-2"></i>New Supplier
             </a>

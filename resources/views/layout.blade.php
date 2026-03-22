@@ -31,13 +31,13 @@
                                 class="fa-solid fa-house fa-fw"></i><span>Dashboard</span></a></li>
 
                     <li>
-                        <a href="#salesSubmenu" data-bs-toggle="collapse" class="sidebar-link" aria-expanded="false">
+                        <a href="{{ route('sales.index') }}"class="sidebar-link" aria-expanded="false">
                             <i class="fa-solid fa-cart-shopping fa-fw"></i><span>Sales</span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="#purchaseSubmenu" data-bs-toggle="collapse" class="sidebar-link" aria-expanded="false">
+                        <a href="{{ route('purchase.index') }}"class="sidebar-link" aria-expanded="false">
                             <i class="fa-solid fa-bag-shopping fa-fw"></i><span>Purchase</span>
                         </a>
                     </li>
@@ -53,8 +53,8 @@
                             <i class="fa-solid fa-chevron-down toggle-icon"></i>
                         </a>
                         <ul class="collapse sidebar-submenu" id="reportsSubmenu">
-                            <li><a href="reports-sales.html" class="sidebar-link"><span>Sales Report</span></a></li>
-                            <li><a href="reports-purchase.html" class="sidebar-link"><span>Purchase Report</span></a>
+                            <li><a href="reports-sales.html" class="sidebar-link"><span>Sales Summery</span></a></li>
+                            <li><a href="reports-purchase.html" class="sidebar-link"><span>Purchase Summery</span></a>
                             </li>
                         </ul>
                     </li>
@@ -76,10 +76,6 @@
                     <button class="topbar-action" id="dark-mode-toggle" aria-label="Toggle Dark Mode">
                         <i class="fa-solid fa-moon"></i>
                     </button>
-                    <button class="topbar-action" id="rtl-toggle" aria-label="Toggle RTL">
-                        <i class="fa-solid fa-language"></i>
-                    </button>
-
                     <div class="dropdown">
                         <button class="topbar-action" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-regular fa-bell"></i>
@@ -91,13 +87,8 @@
                                 <h6 class="dropdown-header">Notifications</h6>
                             </li>
                             <li><a class="dropdown-item py-2" href="#"><i
-                                        class="fa-solid fa-circle-info text-primary me-2"></i> New sale recorded</a>
+                                        class="fa-solid fa-circle-info text-primary me-2"></i> Over Due Invoice</a>
                             </li>
-                            <li><a class="dropdown-item py-2" href="#"><i
-                                        class="fa-solid fa-triangle-exclamation text-warning me-2"></i> Low stock
-                                    alert</a></li>
-                            <li><a class="dropdown-item py-2" href="#"><i
-                                        class="fa-solid fa-check-circle text-success me-2"></i> System updated</a></li>
                         </ul>
                     </div>
 
@@ -140,11 +131,10 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../assets/js/data-samples.js"></script>
-    <script src="../assets/js/app.js"></script>
-    <script src="../assets/js/charts.js"></script>
-
-
+    <script src="{{ asset('assets/js/data-samples.js') }}"></script>
+    <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script src="{{ asset('assets/js/charts.js') }}"></script>
+    <script src="{{ asset('assets/js/script.js') }}"></script>
 </body>
 
 </html>

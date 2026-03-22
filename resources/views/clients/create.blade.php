@@ -1,6 +1,6 @@
 @extends('layout')
 @section('title')
-    Create Client
+    Create Supplier
 @endsection
 @section('main')
     <div class="page-content p-4 flex-grow-1 overflow-auto">
@@ -12,8 +12,8 @@
         @endif
 
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold mb-0">Add New Client</h4>
-            <a href="{{ route('client.index') }}" class="btn btn-outline-secondary">
+            <h4 class="fw-bold mb-0">Add New Supplier</h4>
+            <a href="{{ route('supplier.index') }}" class="btn btn-outline-secondary">
                 <i class="fa-solid fa-arrow-left me-2"></i>Back to List
             </a>
         </div>
@@ -22,38 +22,38 @@
             <div class="col-lg-7">
                 <div class="card border-0">
                     <div class="card-body p-4">
-                        <form method="POST" action="{{ route('client.store') }}">
+                        <form method="POST" action="{{ route('supplier.store') }}">
                             @csrf
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" name="name" id="clientName"
-                                    placeholder="Client Name" autofocus>
-                                <label for="clientName">Client Name</label>
+                                <input type="text" class="form-control" name="name" id="supplierName"
+                                    placeholder="Supplier Name" value="{{ old('name') }}" autofocus>
+                                <label for="supplierName">Supplier Name</label>
                                 @error('name')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <div class="form-floating mb-3">
-                                <input type="email" class="form-control" name="email" id="clientEmail"
-                                    placeholder="Email Address">
-                                <label for="clientEmail">Email Address</label>
+                                <input type="email" class="form-control" name="email" id="supplierEmail"
+                                    placeholder="Email Address" value="{{ old('email') }}">
+                                <label for="supplierEmail">Email Address</label>
                                 @error('email')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <div class="form-floating mb-3">
-                                <input type="tel" class="form-control" name="phone" id="clientPhone"
-                                    placeholder="Phone Number">
-                                <label for="clientPhone">Phone Number</label>
+                                <input type="tel" class="form-control" name="phone" id="supplierPhone"
+                                    placeholder="Phone Number" value="{{ old('phone') }}">
+                                <label for="supplierPhone">Phone Number</label>
                                 @error('phone')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <div class="form-floating mb-3">
-                                <textarea class="form-control" id="clientAddress" name="address" placeholder="Address" style="height: 90px"></textarea>
-                                <label for="clientAddress">Address</label>
+                                <textarea class="form-control" id="supplierAddress" name="address" placeholder="Address" style="height: 90px">{{ old('address') }}</textarea>
+                                <label for="supplierAddress">Address</label>
                                 @error('address')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -62,18 +62,26 @@
                             <div class="mb-3">
                                 <label class="form-label">Credit Period</label>
                                 <select class="form-select" name="credit_period">
-                                    <option value="15">15 days</option>
-                                    <option value="30" selected>30 days</option>
-                                    <option value="45">45 days</option>
-                                    <option value="60">60 days</option>
+                                    <option value="15" {{ old('credit_period') == '15' ? 'selected' : '' }}>15 days
+                                    </option>
+                                    <option value="30" {{ old('credit_period', '30') == '30' ? 'selected' : '' }}>30
+                                        days</option>
+                                    <option value="45" {{ old('credit_period') == '45' ? 'selected' : '' }}>45 days
+                                    </option>
+                                    <option value="60" {{ old('credit_period') == '60' ? 'selected' : '' }}>60 days
+                                    </option>
                                 </select>
                                 @error('credit_period')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
+
                             <div class="d-flex justify-content-end gap-3 mt-4">
-                                <a href="{{ route('client.index') }}" class="btn btn-light px-4">Cancel</a>
-                                <button type="submit" class="btn btn-primary px-4">Create New Client</button>
+                                <a href="{{ route('supplier.index') }}" class="btn btn-light px-4">Cancel</a>
+                                <button type="reset" class="btn btn-outline-secondary px-4">
+                                    <i class="fa-solid fa-rotate-left me-2"></i>Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary px-4">Create New Supplier</button>
                             </div>
                         </form>
                     </div>

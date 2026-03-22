@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,5 +27,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('client', ClientController::class);
     Route::resource('supplier', SupplierController::class);
+    Route::resource('sales', SalesController::class);
+    Route::resource('purchase', PurchaseController::class);
 
 });
