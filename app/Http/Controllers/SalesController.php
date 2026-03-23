@@ -16,7 +16,14 @@ class SalesController extends Controller
      */
     public function index()
     {
-        return view('sales.index');
+        $sales = Sale::with(['salesItems', 'client'])
+            ->where('user_id', Auth::id())
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        $salesCount = $sales->count();
+
+        return view('sales.index', compact('sales', 'salesCount'));
     }
 
     /**
@@ -88,17 +95,24 @@ class SalesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Sale $sale)
     {
-        //
+        abort_if($sale->user_id !== Auth::id(), 403);
+        $sale->load(['client', 'salesItems']);
+
+        return view('sales.show', compact('sale'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Sale $sale)
     {
-        //
+        $clients = Client::all();
+        abort_if($sale->user_id !== Auth::id(), 403);
+        $sale->load(['client', 'salesItems']);
+
+        return view('sales.edit', compact('sale', 'clients'));
     }
 
     /**
