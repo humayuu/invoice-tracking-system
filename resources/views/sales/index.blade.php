@@ -9,101 +9,36 @@
         @endif
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold mb-0">Sales List <span class="badge text-bg-dark fs-5">{{ $salesCount }}</span></h4>
-            <a href="{{ route('sales.create') }}" class="btn btn-primary shadow-sm"><i class="fa-solid fa-plus me-2"></i>Create
-                Invoice</a>
+            <a href="{{ route('sales.create') }}" class="btn btn-primary shadow-sm">
+                <i class="fa-solid fa-plus me-2"></i>
+                <span class="d-none d-sm-inline">Create Invoice</span>
+            </a>
         </div>
 
         <div class="card shadow-sm rounded-4 border-light">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
-                <div class="d-flex align-items-center gap-2">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search invoices..."
-                        style="max-width: 250px;">
-                </div>
                 <div>
                     <button class="btn btn-outline-secondary btn-sm" id="exportBtn">
-                        <i class="fa-solid fa-file-csv me-2"></i>Export CSV
+                        <i class="fa-solid fa-file-csv me-2"></i>
+                        <span class="d-none d-sm-inline">Export CSV</span>
                     </button>
                 </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
+                    <table class="table table-hover mb-0 align-middle w-100" id="salesTable">
                         <thead class="table-thead">
                             <tr class="text-center">
-                                <th class="ps-4">Invoice #</th>
-                                <th>Date</th>
+                                <th>#</th>
+                                <th>Invoice #</th>
+                                <th class="d-none d-md-table-cell">Date</th>
                                 <th>Client</th>
-                                <th>Amount</th>
+                                <th class="d-none d-md-table-cell">Amount</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach ($sales as $sale)
-                                <tr class="text-center">
-                                    <td class="ps-4 fw-semibold">#{{ $sale->invoice_no }}</td>
-                                    <td class="text-muted">{{ $sale->invoice_date->format('d-m-Y') }}</td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold"
-                                                style="width:34px; height:34px; font-size:13px;">
-                                                <div ...>{{ strtoupper(substr($sale->client->name, 0, 2)) }}</div>
-                                            </div>
-                                            <span>{{ $sale->client->name }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="fw-semibold">Rs. {{ Number::format($sale->amount) }}</td>
-                                    @php
-                                        $badgeClass = match ($sale->status) {
-                                            'paid' => 'bg-success-subtle text-success-emphasis',
-                                            'pending' => 'bg-warning-subtle text-warning-emphasis',
-                                            'overdue' => 'bg-danger-subtle text-danger-emphasis',
-                                        };
-                                    @endphp
-
-                                    <td>
-                                        <span
-                                            class="badge rounded-pill {{ $badgeClass }} fs-6">{{ ucfirst($sale->status) }}</span>
-                                    </td>
-                                    <td>
-
-
-
-
-                                        @if ($sale->status !== 'paid')
-                                            <form action="{{ route('sales.status', $sale->id) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-sm btn-success rounded-3 me-1"
-                                                    title="Mark as Paid">
-                                                    <i class="fa-solid fa-check me-1"></i>Mark Paid
-                                                </button>
-                                            </form>
-                                            <a href="{{ route('sales.edit', $sale->id) }}"
-                                                class="btn btn-sm btn-primary border rounded-3 me-1" title="Edit">
-                                                <i class="fa-solid fa-pen"></i>
-                                            </a>
-                                        @endif
-                                        <a href="{{ route('sales.show', $sale->id) }}"
-                                            class="btn btn-sm btn-dark border rounded-3 me-1" title="View">
-                                            <i class="fa-solid fa-eye "></i>
-                                        </a>
-
-                                        <form action="{{ route('sales.destroy', $sale->id) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger border rounded-3"
-                                                title="Delete">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
-
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>

@@ -8,22 +8,104 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class SalesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $sales = Sale::with(['salesItems', 'client'])
+        $sales = Sale::with('client')
             ->where('user_id', Auth::id())
-            ->orderBy('id', 'DESC')
-            ->get();
+            ->select(['id', 'invoice_no', 'invoice_date', 'amount', 'status', 'client_id']);
+        if ($request->ajax()) {
+
+            return DataTables::of($sales)
+                ->addIndexColumn()
+
+                ->addColumn('invoice_no', function ($sale) {
+                    return '#'.$sale->invoice_no;
+                })
+
+                ->addColumn('invoice_date', function ($sale) {
+                    return $sale->invoice_date->format('d-m-Y');
+                })
+
+                ->addColumn('client', function ($sale) {
+                    $initials = strtoupper(substr($sale->client->name, 0, 2));
+                    $name = $sale->client->name;
+
+                    return '
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary
+                                        d-flex align-items-center justify-content-center fw-bold"
+                                 style="width:34px; height:34px; font-size:13px;">
+                                '.$initials.'
+                            </div>
+                            <span>'.$name.'</span>
+                        </div>';
+                })
+
+                // Amount format
+                ->addColumn('amount', function ($sale) {
+                    return 'Rs. '.number_format($sale->amount);
+                })
+
+                // Status badge
+                ->addColumn('status', function ($sale) {
+                    $badgeClass = match ($sale->status) {
+                        'paid' => 'bg-success-subtle text-success-emphasis',
+                        'pending' => 'bg-warning-subtle text-warning-emphasis',
+                        'overdue' => 'bg-danger-subtle text-danger-emphasis',
+                    };
+
+                    return '<span class="badge rounded-pill '.$badgeClass.' fs-6">'
+                           .ucfirst($sale->status).'</span>';
+                })
+
+                // Action buttons
+                ->addColumn('action', function ($sale) {
+                    $buttons = '';
+
+                    if ($sale->status !== 'paid') {
+                        $buttons .= '
+                            <form action="'.route('sales.status', $sale->id).'"
+                                  method="POST" class="d-inline">
+                                '.csrf_field().method_field('PUT').'
+                                <button type="submit" class="btn btn-sm btn-success rounded-3 me-1">
+                                    <i class="fa-solid fa-check me-1"></i>Mark Paid
+                                </button>
+                            </form>
+                            <a href="'.route('sales.edit', $sale->id).'"
+                               class="btn btn-sm btn-primary border rounded-3 me-1">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>';
+                    }
+
+                    $buttons .= '
+                        <a href="'.route('sales.show', $sale->id).'"
+                           class="btn btn-sm btn-dark border rounded-3 me-1">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                        <form action="'.route('sales.destroy', $sale->id).'"
+                              method="POST" class="d-inline">
+                            '.csrf_field().method_field('DELETE').'
+                            <button type="submit" class="btn btn-sm btn-danger border rounded-3">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>';
+
+                    return $buttons;
+                })
+                ->rawColumns(['client', 'status', 'action'])
+                ->make(true);
+        }
 
         $salesCount = $sales->count();
 
-        return view('sales.index', compact('sales', 'salesCount'));
+        return view('sales.index', compact('salesCount'));
     }
 
     /**

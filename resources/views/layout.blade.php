@@ -5,21 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title')</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Custom CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
 </head>
 
 <body>
 
     <div class="d-flex w-100 vh-100 overflow-hidden">
-        <!-- Sidebar Overlay for Mobile -->
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header d-flex align-items-center px-4 fw-bold fs-5">
                 <i class="fa-solid fa-chart-line sidebar-brand-icon"></i>
@@ -29,24 +25,20 @@
                 <ul>
                     <li><a href="{{ url('/dashboard') }}" class="sidebar-link"><i
                                 class="fa-solid fa-house fa-fw"></i><span>Dashboard</span></a></li>
-
                     <li>
-                        <a href="{{ route('sales.index') }}"class="sidebar-link" aria-expanded="false">
+                        <a href="{{ route('sales.index') }}" class="sidebar-link" aria-expanded="false">
                             <i class="fa-solid fa-cart-shopping fa-fw"></i><span>Sales</span>
                         </a>
                     </li>
-
                     <li>
-                        <a href="{{ route('purchase.index') }}"class="sidebar-link" aria-expanded="false">
+                        <a href="{{ route('purchase.index') }}" class="sidebar-link" aria-expanded="false">
                             <i class="fa-solid fa-bag-shopping fa-fw"></i><span>Purchase</span>
                         </a>
                     </li>
-
                     <li><a href="{{ route('client.index') }}" class="sidebar-link"><i
                                 class="fa-solid fa-users fa-fw"></i><span>Clients</span></a></li>
                     <li><a href="{{ route('supplier.index') }}" class="sidebar-link"><i
                                 class="fa-solid fa-truck-field fa-fw"></i><span>Suppliers</span></a></li>
-
                     <li>
                         <a href="#reportsSubmenu" data-bs-toggle="collapse" class="sidebar-link" aria-expanded="false">
                             <i class="fa-solid fa-file-invoice fa-fw"></i><span>Reports</span>
@@ -61,9 +53,8 @@
                 </ul>
             </div>
         </aside>
-        <!-- Main Content -->
+
         <main class="main-content d-flex flex-column flex-grow-1 min-vh-0">
-            <!-- Topbar -->
             <header class="topbar d-flex align-items-center justify-content-between px-4 bg-body shadow-sm z-2">
                 <div class="d-flex align-items-center gap-3">
                     <button id="sidebar-toggle" aria-label="Toggle Sidebar"><i class="fa-solid fa-bars"></i></button>
@@ -84,8 +75,7 @@
                                 <h6 class="dropdown-header">Notifications</h6>
                             </li>
                             <li><a class="dropdown-item py-2" href="#"><i
-                                        class="fa-solid fa-circle-info text-primary me-2"></i> Over Due Invoice</a>
-                            </li>
+                                        class="fa-solid fa-circle-info text-primary me-2"></i> Over Due Invoice</a></li>
                         </ul>
                     </div>
 
@@ -94,7 +84,7 @@
                             role="button">
                             <div class="rounded-circle bg-dark bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold"
                                 style="width:50px; height:50px; font-size:18px;">
-                                <div ...>{{ strtoupper(substr(Auth::user()->name, 0, 2)) }}</div>
+                                {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
                             </div>
                             <div class="d-none d-sm-flex flex-column">
                                 <span class="user-name">{{ Auth::user()->name }}</span>
@@ -123,16 +113,70 @@
             @yield('main')
 
         </main>
-
     </div>
 
-    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ asset('assets/js/data-samples.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script src="{{ asset('assets/js/charts.js') }}"></script>
     <script src="{{ asset('assets/js/script.js') }}"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            if ($('#salesTable').length) {
+                $('#salesTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: "{{ route('sales.index') }}",
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            name: 'DT_RowIndex',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'invoice_no',
+                            name: 'invoice_no'
+                        },
+                        {
+                            data: 'invoice_date',
+                            name: 'invoice_date',
+                            className: 'd-none d-md-table-cell'
+                        },
+                        {
+                            data: 'client',
+                            name: 'client.name',
+                            orderable: false
+                        },
+                        {
+                            data: 'amount',
+                            name: 'amount',
+                            className: 'd-none d-md-table-cell'
+                        },
+                        {
+                            data: 'status',
+                            name: 'status'
+                        },
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    dom: '<"d-flex flex-wrap justify-content-between align-items-center gap-2 p-3"lf>rtip',
+                    language: {
+                        search: "",
+                        searchPlaceholder: "Search...",
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
