@@ -1,7 +1,8 @@
 @extends('layout')
 @section('title')
-    Create Supplier
+    Create Client
 @endsection
+
 @section('main')
     <div class="page-content p-4 flex-grow-1 overflow-auto">
         @if (session('success'))
@@ -12,8 +13,8 @@
         @endif
 
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold mb-0">Add New Supplier</h4>
-            <a href="{{ route('supplier.index') }}" class="btn btn-outline-secondary">
+            <h4 class="fw-bold mb-0">Add New Client</h4>
+            <a href="{{ route('client.index') }}" class="btn btn-outline-secondary">
                 <i class="fa-solid fa-arrow-left me-2"></i>Back to List
             </a>
         </div>
@@ -22,38 +23,39 @@
             <div class="col-lg-7">
                 <div class="card border-0">
                     <div class="card-body p-4">
-                        <form method="POST" action="{{ route('supplier.store') }}">
+                        <form method="POST" action="{{ route('client.store') }}">
                             @csrf
+
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" name="name" id="supplierName"
-                                    placeholder="Supplier Name" value="{{ old('name') }}" autofocus>
-                                <label for="supplierName">Supplier Name</label>
+                                <input type="text" class="form-control" name="name" id="clientName"
+                                    placeholder="Client Name" value="{{ old('name') }}" autofocus>
+                                <label for="clientName">Client Name</label>
                                 @error('name')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <div class="form-floating mb-3">
-                                <input type="email" class="form-control" name="email" id="supplierEmail"
+                                <input type="email" class="form-control" name="email" id="clientEmail"
                                     placeholder="Email Address" value="{{ old('email') }}">
-                                <label for="supplierEmail">Email Address</label>
+                                <label for="clientEmail">Email Address</label>
                                 @error('email')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <div class="form-floating mb-3">
-                                <input type="tel" class="form-control" name="phone" id="supplierPhone"
+                                <input type="tel" class="form-control" name="phone" id="clientPhone"
                                     placeholder="Phone Number" value="{{ old('phone') }}">
-                                <label for="supplierPhone">Phone Number</label>
+                                <label for="clientPhone">Phone Number</label>
                                 @error('phone')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <div class="form-floating mb-3">
-                                <textarea class="form-control" id="supplierAddress" name="address" placeholder="Address" style="height: 90px">{{ old('address') }}</textarea>
-                                <label for="supplierAddress">Address</label>
+                                <textarea class="form-control" id="clientAddress" name="address" placeholder="Address" style="height: 90px">{{ old('address') }}</textarea>
+                                <label for="clientAddress">Address</label>
                                 @error('address')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -77,11 +79,11 @@
                             </div>
 
                             <div class="d-flex justify-content-end gap-3 mt-4">
-                                <a href="{{ route('supplier.index') }}" class="btn btn-light px-4">Cancel</a>
+                                <a href="{{ route('client.index') }}" class="btn btn-light px-4">Cancel</a>
                                 <button type="reset" class="btn btn-outline-secondary px-4">
                                     <i class="fa-solid fa-rotate-left me-2"></i>Reset
                                 </button>
-                                <button type="submit" class="btn btn-primary px-4">Create New Supplier</button>
+                                <button type="submit" class="btn btn-primary px-4">Create New Client</button>
                             </div>
                         </form>
                     </div>

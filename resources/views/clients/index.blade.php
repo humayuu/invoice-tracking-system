@@ -42,7 +42,7 @@
                                     <td>{{ $client->email }}</td>
                                     <td>{{ $client->phone }}</td>
                                     <td>
-                                        <span class="badge rounded-pill text-bg-primary">{{ $client->credit_period }}
+                                        <span class="badge rounded-pill text-bg-primary fs-6">{{ $client->credit_period }}
                                             days</span>
                                     </td>
                                     <td class="d-flex">

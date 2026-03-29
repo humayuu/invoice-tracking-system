@@ -118,16 +118,86 @@ class SalesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Sale $sale)
     {
-        //
+        abort_if($sale->user_id !== Auth::id(), 403);
+
+        $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'invoice_date' => 'required|date',
+            'po_no' => 'nullable|string|max:50',
+            'note' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.item_name' => 'required|string',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.price' => 'required|numeric|min:0',
+            'items.*.sub_total' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $client = Client::findOrFail($request->client_id);
+            $dueDate = Carbon::parse($request->invoice_date)->addDays($client->credit_period);
+            $amount = collect($request->items)->sum('sub_total');
+
+            $sale->update([
+                'client_id' => $request->client_id,
+                'invoice_date' => $request->invoice_date,
+                'due_date' => $dueDate,
+                'po_no' => $request->po_no,
+                'note' => $request->note,
+                'amount' => $amount,
+            ]);
+
+            $sale->salesItems()->delete();
+
+            foreach ($request->items as $item) {
+                $sale->salesItems()->create([
+                    'item_name' => $item['item_name'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'total' => $item['sub_total'],
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('sales.index')->with('success', 'Invoice updated successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->back()->with('error', 'Something went wrong: '.$e->getMessage());
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Sale $sale)
     {
-        //
+        abort_if($sale->user_id !== Auth::id(), 403);
+
+        DB::transaction(function () use ($sale) {
+            $sale->salesItems()->delete();
+            $sale->delete();
+        });
+
+        return redirect()->route('sales.index')->with('success', 'Invoice deleted successfully!');
+    }
+
+    /**
+     * For Update Sale invoice Status
+     */
+    public function saleStatus($id)
+    {
+        $sale = Sale::find($id);
+        abort_if($sale->user_id !== Auth::id(), 403);
+
+        $sale->update(['status' => 'paid']);
+
+        return redirect()->route('sales.index')->with('success', 'Status updated successfully!');
+
     }
 }

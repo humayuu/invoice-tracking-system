@@ -46,33 +46,54 @@
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold"
-                                                style="width:34px; height:34px; font-size:13px;">AC</div>
+                                                style="width:34px; height:34px; font-size:13px;">
+                                                <div ...>{{ strtoupper(substr($sale->client->name, 0, 2)) }}</div>
+                                            </div>
                                             <span>{{ $sale->client->name }}</span>
                                         </div>
                                     </td>
                                     <td class="fw-semibold">Rs. {{ Number::format($sale->amount) }}</td>
+                                    @php
+                                        $badgeClass = match ($sale->status) {
+                                            'paid' => 'bg-success-subtle text-success-emphasis',
+                                            'pending' => 'bg-warning-subtle text-warning-emphasis',
+                                            'overdue' => 'bg-danger-subtle text-danger-emphasis',
+                                        };
+                                    @endphp
+
                                     <td>
                                         <span
-                                            class="badge rounded-pill bg-warning-subtle text-warning-emphasis fs-6">{{ ucfirst($sale->status) }}</span>
+                                            class="badge rounded-pill {{ $badgeClass }} fs-6">{{ ucfirst($sale->status) }}</span>
                                     </td>
                                     <td>
 
-                                        <form action="" method="POST" class="d-inline">
-                                            <button type="submit" class="btn btn-sm btn-success rounded-3 me-1"
-                                                title="Mark as Paid">
-                                                <i class="fa-solid fa-check me-1"></i>Mark Paid
-                                            </button>
-                                        </form>
 
+
+
+                                        @if ($sale->status !== 'paid')
+                                            <form action="{{ route('sales.status', $sale->id) }}" method="POST"
+                                                class="d-inline">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="btn btn-sm btn-success rounded-3 me-1"
+                                                    title="Mark as Paid">
+                                                    <i class="fa-solid fa-check me-1"></i>Mark Paid
+                                                </button>
+                                            </form>
+                                            <a href="{{ route('sales.edit', $sale->id) }}"
+                                                class="btn btn-sm btn-primary border rounded-3 me-1" title="Edit">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </a>
+                                        @endif
                                         <a href="{{ route('sales.show', $sale->id) }}"
                                             class="btn btn-sm btn-dark border rounded-3 me-1" title="View">
                                             <i class="fa-solid fa-eye "></i>
                                         </a>
-                                        <a href="{{ route('sales.edit', $sale->id) }}"
-                                            class="btn btn-sm btn-primary border rounded-3 me-1" title="Edit">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </a>
-                                        <form action="#" method="POST" class="d-inline">
+
+                                        <form action="{{ route('sales.destroy', $sale->id) }}" method="POST"
+                                            class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger border rounded-3"
                                                 title="Delete">
                                                 <i class="fa-solid fa-trash"></i>

@@ -130,22 +130,24 @@
                         <div class="d-flex justify-content-end gap-2">
 
                             @if ($sale->status !== 'paid')
-                                <form action="" method="POST" class="d-inline">
+                                <form action="{{ route('sales.status', $sale->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PUT')
                                     <button type="submit" class="btn btn-success px-4">
                                         <i class="fa-solid fa-check me-2"></i>Mark as Paid
                                     </button>
                                 </form>
+                                <a href="{{ route('sales.edit', $sale->id) }}" class="btn btn-primary px-4">
+                                    <i class="fa-solid fa-pen me-2"></i>Edit
+                                </a>
                             @endif
 
-                            <a href="" class="btn btn-primary px-4">
-                                <i class="fa-solid fa-pen me-2"></i>Edit
-                            </a>
 
-                            <form action="" method="POST" class="d-inline">
+
+                            <form action="{{ route('sales.destroy', $sale->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger px-4"
-                                    onclick="return confirm('Delete this invoice?')">
+                                <button type="submit" class="btn btn-danger px-4">
                                     <i class="fa-solid fa-trash me-2"></i>Delete
                                 </button>
                             </form>

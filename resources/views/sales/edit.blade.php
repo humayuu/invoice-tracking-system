@@ -1,6 +1,6 @@
 @extends('layout')
 @section('title')
-    Create Invoice
+    Edit Invoice
 @endsection
 @section('main')
     <div class="page-content p-4 flex-grow-1 overflow-auto fade-up">
@@ -26,10 +26,11 @@
 
                             <div class="form-floating mb-3">
                                 <select class="form-select" id="clientId" name="client_id">
-                                    <option value="" disabled selected>Select Client</option>
+                                    <option value="" disabled>Select Client</option>
                                     @forelse ($clients as $client)
                                         <option value="{{ $client->id }}"
-                                            {{ $sale->client_id === $client->id ? 'selected' : '' }}>{{ $client->name }}
+                                            {{ $sale->client_id === $client->id ? 'selected' : '' }}>
+                                            {{ $client->name }}
                                         </option>
                                     @empty
                                         <option>No Record Found!</option>
@@ -40,15 +41,9 @@
 
                             <div class="form-floating mb-3">
                                 <input type="date" class="form-control" id="saleDate" name="invoice_date"
-                                    placeholder="Date" value="{{ $sale->invoice_date }}">
+                                    placeholder="Date" value="{{ $sale->invoice_date->format('Y-m-d') }}">
                                 <label for="saleDate">Invoice Date</label>
                             </div>
-
-                            {{-- <div class="form-floating mb-3">
-                                <input type="date" class="form-control" id="dueDate" name="due_date"
-                                    placeholder="Due Date">
-                                <label for="dueDate">Due Date</label>
-                            </div> --}}
 
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control" id="poNumber" name="po_no"
@@ -82,20 +77,24 @@
                                         </tr>
                                     </thead>
                                     <tbody id="tbody">
-                                        @foreach ($sale->salesItems as $item)
+                                        @foreach ($sale->salesItems as $index => $item)
                                             <tr>
-                                                <td><input type="text" name="items[0][item_name]" class="form-control"
-                                                        value="{{ $item['item_name'] }}">
-                                                </td>
-                                                <td><input type="number" name="items[0][quantity]" class="form-control qty"
-                                                        min="1" value="{{ $item['quantity'] }}"></td>
-                                                <td><input type="number" name="items[0][price]" class="form-control price"
-                                                        min="0" step="0.01" value="{{ $item['price'] }}"></td>
-                                                <td><input type="text" name="items[0][sub_total]"
+                                                <input type="hidden" name="items[{{ $index }}][id]"
+                                                    value="{{ $item->id }}">
+                                                <td><input type="text" name="items[{{ $index }}][item_name]"
+                                                        class="form-control" value="{{ $item->item_name }}"></td>
+                                                <td><input type="number" name="items[{{ $index }}][quantity]"
+                                                        class="form-control qty" min="1"
+                                                        value="{{ $item->quantity }}"></td>
+                                                <td><input type="number" name="items[{{ $index }}][price]"
+                                                        class="form-control price" min="0" step="0.01"
+                                                        value="{{ $item->price }}"></td>
+                                                <td><input type="text" name="items[{{ $index }}][sub_total]"
                                                         class="form-control sub-total" readonly
-                                                        value="{{ $item['total'] }}"></td>
+                                                        value="{{ $item->total }}"></td>
                                                 <td class="text-center">
-                                                    <button type="button" class="btn btn-sm btn-outline-danger" disabled
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        {{ $loop->count === 1 ? 'disabled' : '' }}
                                                         onclick="removeItem(this)">
                                                         <i class="fa-solid fa-trash"></i>
                                                     </button>
@@ -106,7 +105,7 @@
                                     <tfoot>
                                         <tr>
                                             <td colspan="3" class="text-end fw-semibold">Total Amount</td>
-                                            <td><input type="text" name="total_amount" id="total_amount"
+                                            <td><input type="text" name="amount" id="total_amount"
                                                     class="form-control fw-bold" readonly value="{{ $sale->amount }}">
                                             </td>
                                             <td></td>

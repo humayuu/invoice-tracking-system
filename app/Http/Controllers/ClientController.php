@@ -13,7 +13,9 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::all();
+        $clients = Client::where('user_id', Auth::id())
+            ->orderBy('id', 'DESC')
+            ->get();
 
         return view('clients.index', compact('clients'));
     }
@@ -51,6 +53,8 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
+        abort_if($client->user_id !== Auth::id(), 403);
+
         return view('clients.show', compact('client'));
     }
 
@@ -59,6 +63,8 @@ class ClientController extends Controller
      */
     public function edit(Client $client)
     {
+        abort_if($client->user_id !== Auth::id(), 403);
+
         return view('clients.edit', compact('client'));
     }
 
@@ -67,6 +73,8 @@ class ClientController extends Controller
      */
     public function update(Request $request, Client $client)
     {
+        abort_if($client->user_id !== Auth::id(), 403);
+
         $validated = $request->validate([
             'name' => 'required|string|max:50',
             'credit_period' => 'required|integer|in:15,30,45,60',
@@ -85,6 +93,8 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
+        abort_if($client->user_id !== Auth::id(), 403);
+
         $client->delete();
 
         return redirect()->route('client.index')->with('success', 'Client Deleted successfully.');

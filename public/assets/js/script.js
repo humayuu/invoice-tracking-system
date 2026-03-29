@@ -1,4 +1,4 @@
-let rowIndex = 1;
+let rowIndex = document.querySelectorAll('#tbody tr').length;
 
 const addItem = () => {
     let tbody = document.getElementById("tbody");

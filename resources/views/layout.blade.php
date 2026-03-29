@@ -23,7 +23,7 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header d-flex align-items-center px-4 fw-bold fs-5">
                 <i class="fa-solid fa-chart-line sidebar-brand-icon"></i>
-                <span class="sidebar-brand-text">InvoiceTracker</span>
+                <a href="{{ url('/dashboard') }}"><span class="sidebar-brand-text">InvoiceTracker</span></a>
             </div>
             <div class="sidebar-menu flex-grow-1 overflow-auto py-3">
                 <ul>
@@ -73,9 +73,6 @@
                     </form>
                 </div>
                 <div class="d-flex align-items-center gap-4">
-                    <button class="topbar-action" id="dark-mode-toggle" aria-label="Toggle Dark Mode">
-                        <i class="fa-solid fa-moon"></i>
-                    </button>
                     <div class="dropdown">
                         <button class="topbar-action" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-regular fa-bell"></i>
@@ -95,9 +92,10 @@
                     <div class="dropdown">
                         <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false"
                             role="button">
-                            <img src="https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff"
-                                alt="User" class="rounded-circle border border-2 object-fit-cover"
-                                style="width: 40px; height: 40px;">
+                            <div class="rounded-circle bg-dark bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold"
+                                style="width:50px; height:50px; font-size:18px;">
+                                <div ...>{{ strtoupper(substr(Auth::user()->name, 0, 2)) }}</div>
+                            </div>
                             <div class="d-none d-sm-flex flex-column">
                                 <span class="user-name">{{ Auth::user()->name }}</span>
                             </div>

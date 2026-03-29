@@ -16,6 +16,7 @@
             <div class="col-12 d-flex justify-content-center">
                 <div class="login-right mt-5">
                     <div class="login-form-wrap fade-up">
+
                         <!-- Mobile brand icon -->
                         <div class="d-flex d-md-none align-items-center gap-2 mb-4">
                             <div
@@ -24,12 +25,10 @@
                             </div>
                             <span style="font-weight:700;font-size:1.1rem;color:var(--text-main);">invoiceTracker</span>
                         </div>
-
-                        <div class="mb-4">
-                            <h4 class="fw-bold mb-1" style="color:var(--text-main);letter-spacing:-0.02em;">Create an
-                                account</h4>
-                            <p class="mb-0" style="color:var(--text-muted);font-size:0.9rem;">Fill in the details
-                                below to get started.</p>
+                        <!-- Brand Heading with Icon -->
+                        <div class="d-flex justify-content-center align-items-center gap-2 mb-4">
+                            <i class="fa-solid fa-chart-line fs-1 sidebar-brand-icon"></i>
+                            <h4 class="fw-bold mb-0">InvoiceTracker</h4>
                         </div>
 
                         <!-- Google Button -->
@@ -129,7 +128,7 @@
                             </button>
 
                             <div class="text-center" style="color:var(--text-muted);font-size:0.85rem;">
-                                Already have an account? <a href="{{ url('/login') }}">Sign In</a>
+                                Already have an account? <a href="{{ url('/login') }}" class="fs-5">Sign In</a>
                             </div>
                         </form>
                     </div>
@@ -154,6 +153,20 @@
                     toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
                 }
             });
+
+            // Confirm Password visibility toggle
+            document.getElementById('toggleConfirmPassword').addEventListener('click', () => {
+                const pwInput = document.getElementById('password_confirmation');
+                const toggleIcon = document.getElementById('toggleConfirmIcon');
+                if (pwInput.type === 'password') {
+                    pwInput.type = 'text';
+                    toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    pwInput.type = 'password';
+                    toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+
         });
     </script>
 </body>

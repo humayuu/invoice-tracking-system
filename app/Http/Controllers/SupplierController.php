@@ -13,7 +13,9 @@ class SupplierController extends Controller
      */
     public function index()
     {
-        $suppliers = Supplier::all();
+        $suppliers = Supplier::where('user_id', Auth::id())
+            ->orderBy('id', 'DESC')
+            ->get();
 
         return view('suppliers.index', compact('suppliers'));
     }
@@ -51,6 +53,8 @@ class SupplierController extends Controller
      */
     public function show(Supplier $supplier)
     {
+        abort_if($supplier->user_id !== Auth::id(), 403);
+
         return view('suppliers.show', compact('supplier'));
     }
 
@@ -59,6 +63,8 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier)
     {
+        abort_if($supplier->user_id !== Auth::id(), 403);
+
         return view('suppliers.edit', compact('supplier'));
     }
 
@@ -67,6 +73,8 @@ class SupplierController extends Controller
      */
     public function update(Request $request, Supplier $supplier)
     {
+        abort_if($supplier->user_id !== Auth::id(), 403);
+
         $validated = $request->validate([
             'name' => 'required|string|max:50',
             'credit_period' => 'required|integer|in:15,30,45,60',
@@ -85,6 +93,8 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier)
     {
+        abort_if($supplier->user_id !== Auth::id(), 403);
+
         $supplier->delete();
 
         return redirect()->route('supplier.index')->with('success', 'Supplier Deleted successfully.');

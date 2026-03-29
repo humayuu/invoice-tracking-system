@@ -16,6 +16,22 @@
             <div class="col-12 d-flex justify-content-center">
                 <div class="login-right mt-5">
                     <div class="login-form-wrap fade-up">
+
+                        <!-- Brand Heading with Icon -->
+                        <div class="d-flex justify-content-center align-items-center gap-2 mb-4">
+                            <i class="fa-solid fa-chart-line fs-1 sidebar-brand-icon"></i>
+                            <h4 class="fw-bold mb-0">InvoiceTracker</h4>
+                        </div>
+
+                        @if (session('status'))
+                            <div class="alert alert-success d-flex align-items-center gap-2 py-2 mb-3" role="alert">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span style="font-size: 0.875rem;">
+                                    {{ session('status') }}
+                                </span>
+                            </div>
+                        @endif
+
                         <!-- Mobile brand icon -->
                         <div class="d-flex d-md-none align-items-center gap-2 mb-4">
                             <div
@@ -25,15 +41,8 @@
                             <span style="font-weight:700;font-size:1.1rem;color:var(--text-main);">invoiceTracker</span>
                         </div>
 
-                        <div class="mb-4">
-                            <h4 class="fw-bold mb-1" style="color:var(--text-main);letter-spacing:-0.02em;">Welcome back
-                            </h4>
-                            <p class="mb-0" style="color:var(--text-muted);font-size:0.9rem;">Sign in to your account
-                                to continue.</p>
-                        </div>
-
                         <!-- Google Button -->
-                        <a href=""
+                        <a href="{{ route('google.redirect') }}"
                             class="btn w-100 py-2 fw-semibold mb-3 d-flex align-items-center justify-content-center gap-2"
                             style="border: 1px solid #dadce0; background:#fff; color:#3c4043; font-size:0.9rem; border-radius:8px; transition: box-shadow 0.2s;"
                             onmouseover="this.style.boxShadow='0 1px 6px rgba(0,0,0,0.15)'"
@@ -60,7 +69,7 @@
                             <hr class="flex-grow-1 m-0" style="border-color:#e5e7eb;">
                         </div>
 
-                        <form method="POST" action="/login">
+                        <form method="POST" action="{{ route('login') }}">
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label" for="email">Email address</label>
@@ -88,15 +97,15 @@
                                 @error('password')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <a href="#" class="text-decoration-none small"
+                                <div class="d-flex justify-content-end align-items-center mt-2">
+                                    <a href="{{ route('password.request') }}" class="text-decoration-none small"
                                         style="color:var(--primary-color);font-weight:500;">Forgot password?</a>
                                 </div>
                             </div>
 
                             <div class="mb-4 d-flex align-items-center justify-content-between">
                                 <div class="form-check mb-0">
-                                    <input type="checkbox" class="form-check-input" id="rememberMe" checked>
+                                    <input type="checkbox" class="form-check-input" id="rememberMe" name="remember">
                                     <label class="form-check-label" for="rememberMe"
                                         style="font-size:0.875rem;">Remember me</label>
                                 </div>
@@ -108,7 +117,7 @@
                             </button>
 
                             <div class="text-center" style="color:var(--text-muted);font-size:0.85rem;">
-                                Don't have an account? <a href="{{ url('/register') }}">Register</a>
+                                Don't have an account? <a href="{{ url('/register') }}" class="fs-5">Register</a>
                             </div>
                         </form>
                     </div>
@@ -133,6 +142,13 @@
                     toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
                 }
             });
+
+            document.querySelector('form').addEventListener('submit', () => {
+                document.getElementById('btnText').classList.add('d-none');
+                document.getElementById('btnSpinner').classList.remove('d-none');
+                document.getElementById('loginBtn').disabled = true;
+            });
+
         });
     </script>
 </body>
