@@ -11,7 +11,7 @@
             </div>
         @endif
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold mb-0">Clients</h4>
+            <h4 class="fw-bold mb-0">Clients <span class="badge text-bg-dark fs-5">{{ $clientCount }}</span></h4>
             <a href="{{ route('client.create') }}" class="btn btn-primary shadow-sm">
                 <i class="fa-solid fa-plus me-2"></i>New Client
             </a>
@@ -23,7 +23,7 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
+                    <table class="table table-hover mb-0 align-middle w-100" id="clientTable">
                         <thead class="table-thead">
                             <tr class="text-center">
                                 <th class="ps-4">#</th>
@@ -35,37 +35,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($clients as $client)
-                                <tr class="text-center">
-                                    <td class="ps-4">{{ $loop->iteration }}</td>
-                                    <td>{{ $client->name }}</td>
-                                    <td>{{ $client->email }}</td>
-                                    <td>{{ $client->phone }}</td>
-                                    <td>
-                                        <span class="badge rounded-pill text-bg-primary fs-6">{{ $client->credit_period }}
-                                            days</span>
-                                    </td>
-                                    <td class="d-flex">
-                                        <a href="#" class="btn btn-sm btn-secondary me-1">
-                                            <i class="fa-solid fa-file-invoice"></i>
-                                        </a>
-                                        <a href="{{ route('client.show', $client->id) }}" class="btn btn-sm btn-dark me-1">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('client.edit', $client->id) }}"
-                                            class="btn btn-sm btn-primary me-1">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </a>
-                                        <form method="POST" action="{{ route('client.destroy', $client->id) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
+                            {{-- DataTables will populate this --}}
                         </tbody>
                     </table>
                 </div>

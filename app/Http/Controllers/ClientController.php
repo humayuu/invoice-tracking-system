@@ -5,19 +5,56 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
 
 class ClientController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $clients = Client::where('user_id', Auth::id())
-            ->orderBy('id', 'DESC')
-            ->get();
+            ->orderBy('id', 'DESC');
+        if ($request->ajax()) {
+            return DataTables::of($clients)
+                ->addIndexColumn()
 
-        return view('clients.index', compact('clients'));
+                ->addColumn('credit_period', function ($client) {
+                    return '<span class="badge bg-primary fs-6">'.$client->credit_period.' days</span>';
+                })
+
+                ->addColumn('action', function ($client) {
+                    return '
+                    <div class="d-flex justify-content-center gap-1">
+
+                        <a href="'.route('client.show', $client->id).'" class="btn btn-sm btn-dark">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+
+                        <a href="'.route('client.edit', $client->id).'" class="btn btn-sm btn-primary">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+
+                        <form method="POST" action="'.route('client.destroy', $client->id).'" style="display:inline-block;" onsubmit="return confirm(\'Are you sure?\')">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button class="btn btn-sm btn-danger">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+
+                    </div>
+                ';
+                })
+
+                ->rawColumns(['credit_period', 'action'])
+                ->make(true);
+        }
+
+        $clientCount = $clients->count();
+
+        return view('clients.index', compact('clientCount'));
     }
 
     /**

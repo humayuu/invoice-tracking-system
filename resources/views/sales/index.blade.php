@@ -38,7 +38,9 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                            {{-- DataTables will populate this --}}
+                        </tbody>
                     </table>
                 </div>
             </div>

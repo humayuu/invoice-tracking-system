@@ -11,7 +11,7 @@
             </div>
         @endif
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold mb-0">Suppliers</h4>
+            <h4 class="fw-bold mb-0">Suppliers <span class="badge text-bg-dark fs-5">{{ $supplierCount }}</span></h4>
             <a href="{{ route('supplier.create') }}" class="btn btn-primary shadow-sm">
                 <i class="fa-solid fa-plus me-2"></i>New Supplier
             </a>
@@ -23,7 +23,7 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
+                    <table class="table table-hover mb-0 align-middle w-100" id="supplierTable">
                         <thead class="table-thead">
                             <tr class="text-center">
                                 <th class="ps-4">#</th>
@@ -35,38 +35,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($suppliers as $supplier)
-                                <tr class="text-center">
-                                    <td class="ps-4">{{ $loop->iteration }}</td>
-                                    <td>{{ $supplier->name }}</td>
-                                    <td>{{ $supplier->email }}</td>
-                                    <td>{{ $supplier->phone }}</td>
-                                    <td>
-                                        <span class="badge rounded-pill text-bg-primary">{{ $supplier->credit_period }}
-                                            days</span>
-                                    </td>
-                                    <td class="d-flex">
-                                        <a href="#" class="btn btn-sm btn-secondary me-1">
-                                            <i class="fa-solid fa-file-invoice"></i>
-                                        </a>
-                                        <a href="{{ route('supplier.show', $supplier->id) }}"
-                                            class="btn btn-sm btn-dark me-1">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('supplier.edit', $supplier->id) }}"
-                                            class="btn btn-sm btn-primary me-1">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </a>
-                                        <form method="POST" action="{{ route('supplier.destroy', $supplier->id) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
+                            {{-- DataTables will populate this --}}
                         </tbody>
                     </table>
                 </div>

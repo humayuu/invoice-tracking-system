@@ -175,6 +175,89 @@
                     }
                 });
             }
+            if ($('#clientTable').length) {
+                $('#clientTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: "{{ route('client.index') }}",
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            name: 'DT_RowIndex',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'name',
+                            name: 'name'
+                        },
+                        {
+                            data: 'email',
+                            name: 'email',
+                        },
+                        {
+                            data: 'phone',
+                            name: 'phone',
+                        },
+                        {
+                            data: 'credit_period',
+                            name: 'credit_period',
+                        },
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    dom: '<"d-flex flex-wrap justify-content-between align-items-center gap-2 p-3"lf>rtip',
+                    language: {
+                        search: "",
+                        searchPlaceholder: "Search...",
+                    }
+                });
+            }
+
+            if ($('#supplierTable').length) {
+                $('#supplierTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: "{{ route('supplier.index') }}",
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            name: 'DT_RowIndex',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'name',
+                            name: 'name'
+                        },
+                        {
+                            data: 'email',
+                            name: 'email',
+                        },
+                        {
+                            data: 'phone',
+                            name: 'phone',
+                        },
+                        {
+                            data: 'credit_period',
+                            name: 'credit_period',
+                        },
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    dom: '<"d-flex flex-wrap justify-content-between align-items-center gap-2 p-3"lf>rtip',
+                    language: {
+                        search: "",
+                        searchPlaceholder: "Search...",
+                    }
+                });
+            }
         });
     </script>
 </body>
