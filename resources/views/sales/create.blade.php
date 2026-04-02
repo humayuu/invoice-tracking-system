@@ -26,11 +26,11 @@
                             <div class="form-floating mb-3">
                                 <select class="form-select" id="clientFilter" name="client_id">
                                     <option value="" disabled selected>Select Client</option>
-                                    @forelse ($clients as $client)
-                                        <option value="{{ $client->id }}">{{ $client->name }}</option>
-                                    @empty
-                                        <option>No Record Found!</option>
-                                    @endforelse
+                                    @foreach ($clients as $client)
+                                        <option value="{{ $client->id }}" data-period="{{ $client->credit_period }}">
+                                            {{ $client->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -40,11 +40,11 @@
                                 <label for="saleDate">Invoice Date</label>
                             </div>
 
-                            {{-- <div class="form-floating mb-3">
+                            <div class="form-floating mb-3">
                                 <input type="date" class="form-control" id="dueDate" name="due_date"
-                                    placeholder="Due Date">
+                                    placeholder="Due Date" readonly>
                                 <label for="dueDate">Due Date</label>
-                            </div> --}}
+                            </div>
 
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control" id="poNumber" name="po_no"
@@ -127,4 +127,35 @@
             </div>
         </form>
     </div>
+
+    <script>
+        const clientSelect = document.getElementById('clientFilter');
+        const saleDateInput = document.getElementById('saleDate');
+        const dueDateInput = document.getElementById('dueDate');
+
+        function calculateDueDate() {
+            const selectedClient = clientSelect.options[clientSelect.selectedIndex];
+            const invoiceDateValue = saleDateInput.value;
+
+            // Only calculate if both a client is selected and a date is picked
+            if (selectedClient && selectedClient.dataset.period && invoiceDateValue) {
+                const creditDays = parseInt(selectedClient.dataset.period);
+                const invoiceDate = new Date(invoiceDateValue);
+
+                // Add the credit days to the invoice date
+                invoiceDate.setDate(invoiceDate.getDate() + creditDays);
+
+                // Format back to YYYY-MM-DD for the input field
+                const year = invoiceDate.getFullYear();
+                const month = String(invoiceDate.getMonth() + 1).padStart(2, '0');
+                const day = String(invoiceDate.getDate()).padStart(2, '0');
+
+                dueDateInput.value = `${year}-${month}-${day}`;
+            }
+        }
+
+        // Event Listeners
+        clientSelect.addEventListener('change', calculateDueDate);
+        saleDateInput.addEventListener('change', calculateDueDate);
+    </script>
 @endsection

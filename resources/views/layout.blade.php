@@ -13,6 +13,9 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
         rel="stylesheet" />
+    {{-- Favicon --}}
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+
 </head>
 
 <body>
@@ -91,12 +94,10 @@
                             </div>
                         </div>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="profile-change-password.html"><i
-                                        class="fa-solid fa-user me-2 text-muted"></i> Profile</a></li>
-                            <li><a class="dropdown-item" href="profile-change-password.html"><i
-                                        class="fa-solid fa-key me-2 text-muted"></i> Change Password</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
+                            <li><a class="dropdown-item" href="{{ route('profile') }}"><i
+                                        class="fa-solid fa-user me-2 text-muted"></i>
+                                    Profile</a></li>
+                            <hr class="dropdown-divider">
                             </li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">

@@ -1,6 +1,7 @@
 <?php
 
 use Laravel\Fortify\Features;
+use Laravel\Fortify\Fortify;
 
 return [
 
@@ -149,6 +150,7 @@ return [
         Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
+
     ],
 
 ];

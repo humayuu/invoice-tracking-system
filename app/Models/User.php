@@ -35,4 +35,23 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new CustomVerifyEmail);
     }
+
+    public function hasPassword(): bool
+    {
+        return ! is_null($this->password);
+    }
+
+    public function isGoogleUser(): bool
+    {
+        return ! is_null($this->google_id);
+    }
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'google_id',
+        'google_avatar',
+        'profile_photo_path',
+    ];
 }

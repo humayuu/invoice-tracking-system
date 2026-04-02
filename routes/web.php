@@ -2,13 +2,13 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\GoogleLoginController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['guest'])->group(function () {
-
     Route::get('/', function () {
         return view('login');
     })->name('login');
@@ -16,12 +16,14 @@ Route::middleware(['guest'])->group(function () {
     Route::get('/register', function () {
         return view('register');
     })->name('register');
-
 });
 
-// Authenticated routes
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/user/profile-photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');
+});
 
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
@@ -35,7 +37,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('supplier', SupplierController::class);
     Route::resource('sales', SalesController::class);
     Route::resource('purchase', PurchaseController::class);
-
 });
 
 Route::get('/forgot-password', function () {
