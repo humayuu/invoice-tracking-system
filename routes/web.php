@@ -26,12 +26,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+    Route::put('sales/status/{id}', [SalesController::class, 'saleStatus'])->name('sales.status');
+    Route::get('sales/export', [SalesController::class, 'export'])->name('sales.export');
+
     Route::resource('client', ClientController::class);
     Route::resource('supplier', SupplierController::class);
     Route::resource('sales', SalesController::class);
     Route::resource('purchase', PurchaseController::class);
-
-    Route::put('sales/status/{id}', [SalesController::class, 'saleStatus'])->name('sales.status');
 
 });
 

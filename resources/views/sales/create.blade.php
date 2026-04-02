@@ -24,7 +24,7 @@
                         <div class="card-body p-4">
 
                             <div class="form-floating mb-3">
-                                <select class="form-select" id="clientId" name="client_id">
+                                <select class="form-select" id="clientFilter" name="client_id">
                                     <option value="" disabled selected>Select Client</option>
                                     @forelse ($clients as $client)
                                         <option value="{{ $client->id }}">{{ $client->name }}</option>
@@ -32,7 +32,6 @@
                                         <option>No Record Found!</option>
                                     @endforelse
                                 </select>
-                                <label for="clientId">Client</label>
                             </div>
 
                             <div class="form-floating mb-3">

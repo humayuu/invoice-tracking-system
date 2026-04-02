@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
+    {{-- Select2 --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
 </head>
 
 <body>
@@ -58,10 +62,6 @@
             <header class="topbar d-flex align-items-center justify-content-between px-4 bg-body shadow-sm z-2">
                 <div class="d-flex align-items-center gap-3">
                     <button id="sidebar-toggle" aria-label="Toggle Sidebar"><i class="fa-solid fa-bars"></i></button>
-                    <form class="search-form">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" placeholder="Search globally..." aria-label="Search">
-                    </form>
                 </div>
                 <div class="d-flex align-items-center gap-4">
                     <div class="dropdown">
@@ -114,8 +114,8 @@
 
         </main>
     </div>
-
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ asset('assets/js/data-samples.js') }}"></script>
@@ -127,6 +127,12 @@
 
     <script>
         $(document).ready(function() {
+            $('#clientFilter').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Search Client...',
+                allowClear: true,
+                width: '100%',
+            });
             if ($('#salesTable').length) {
                 $('#salesTable').DataTable({
                     processing: true,

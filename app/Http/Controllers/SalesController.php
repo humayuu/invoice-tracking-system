@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SalesExport;
 use App\Models\Client;
 use App\Models\Sale;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class SalesController extends Controller
@@ -19,6 +21,7 @@ class SalesController extends Controller
     {
         $sales = Sale::with('client')
             ->where('user_id', Auth::id())
+            ->orderBy('id', 'DESC')
             ->select(['id', 'invoice_no', 'invoice_date', 'amount', 'status', 'client_id']);
         if ($request->ajax()) {
 
@@ -59,6 +62,7 @@ class SalesController extends Controller
                         'paid' => 'bg-success-subtle text-success-emphasis',
                         'pending' => 'bg-warning-subtle text-warning-emphasis',
                         'overdue' => 'bg-danger-subtle text-danger-emphasis',
+                        default => 'bg-secondary-subtle text-secondary-emphasis',
                     };
 
                     return '<span class="badge rounded-pill '.$badgeClass.' fs-6">'
@@ -141,6 +145,7 @@ class SalesController extends Controller
             $client = Client::findOrFail($request->client_id);
             $dueDate = Carbon::parse($request->invoice_date)->addDays($client->credit_period);
             $amount = collect($request->items)->sum('sub_total');
+            $status = Carbon::today()->gte($dueDate) ? 'overdue' : 'pending';
 
             $sale = Sale::create([
                 'user_id' => Auth::id(),
@@ -151,7 +156,7 @@ class SalesController extends Controller
                 'invoice_no' => Sale::generateInvoiceNo(),
                 'note' => $request->note,
                 'amount' => $amount,
-                'status' => 'pending',
+                'status' => $status,
             ]);
 
             foreach ($request->items as $item) {
@@ -190,8 +195,12 @@ class SalesController extends Controller
      */
     public function edit(Sale $sale)
     {
-        $clients = Client::all();
         abort_if($sale->user_id !== Auth::id(), 403);
+
+        if ($sale->status === 'paid') {
+            return redirect()->back();
+        }
+        $clients = Client::all();
         $sale->load(['client', 'salesItems']);
 
         return view('sales.edit', compact('sale', 'clients'));
@@ -222,6 +231,7 @@ class SalesController extends Controller
             $client = Client::findOrFail($request->client_id);
             $dueDate = Carbon::parse($request->invoice_date)->addDays($client->credit_period);
             $amount = collect($request->items)->sum('sub_total');
+            $status = Carbon::today()->gte($dueDate) ? 'overdue' : 'pending';
 
             $sale->update([
                 'client_id' => $request->client_id,
@@ -230,6 +240,7 @@ class SalesController extends Controller
                 'po_no' => $request->po_no,
                 'note' => $request->note,
                 'amount' => $amount,
+                'status' => $status,
             ]);
 
             $sale->salesItems()->delete();
@@ -274,12 +285,22 @@ class SalesController extends Controller
      */
     public function saleStatus($id)
     {
-        $sale = Sale::find($id);
+        $sale = Sale::findOrFail($id);
         abort_if($sale->user_id !== Auth::id(), 403);
 
         $sale->update(['status' => 'paid']);
 
         return redirect()->route('sales.index')->with('success', 'Status updated successfully!');
 
+    }
+
+    /**
+     * For Export Excel File
+     */
+    public function export()
+    {
+        $filename = 'sales-'.now()->format('d-m-Y').'.xlsx';
+
+        return Excel::download(new SalesExport, $filename);
     }
 }
