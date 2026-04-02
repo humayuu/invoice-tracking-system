@@ -28,6 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::put('sales/status/{id}', [SalesController::class, 'saleStatus'])->name('sales.status');
     Route::get('sales/export', [SalesController::class, 'export'])->name('sales.export');
+    Route::get('sales/invoice/export/{id}', [SalesController::class, 'invoiceExport'])->name('sale.invoice.export');
+    Route::get('sales/invoice/pdf/{id}', [SalesController::class, 'invoicePdf'])->name('sale.invoice.pdf');
 
     Route::resource('client', ClientController::class);
     Route::resource('supplier', SupplierController::class);

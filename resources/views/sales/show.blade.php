@@ -2,53 +2,102 @@
 @section('title')
     Invoice Detail
 @endsection
+<style>
+    @media print {
+
+        /* Hide everything by default */
+        body * {
+            visibility: hidden;
+        }
+
+        /* Show only the invoice container and its children */
+        #printable-invoice,
+        #printable-invoice * {
+            visibility: visible;
+        }
+
+        /* Position the invoice at the top-left of the page */
+        #printable-invoice {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+
+        /* Hide the action buttons during print */
+        .btn,
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
 @section('main')
     <div class="page-content p-4 flex-grow-1 overflow-auto">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold mb-0">Invoice Detail</h4>
-            <a href="{{ route('sales.index') }}" class="btn btn-outline-secondary">
-                <i class="fa-solid fa-arrow-left me-2"></i>Back to List
-            </a>
+
+        {{-- Header --}}
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ route('sales.index') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back
+                </a>
+                <h4 class="fw-bold mb-0">Invoice Detail</h4>
+            </div>
+
+            {{-- Top Action Buttons --}}
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ route('sale.invoice.export', $sale->id) }}" class="btn btn-sm btn-secondary">
+                    <i class="fa-solid fa-file-arrow-down me-1"></i> Export XLSX
+                </a>
+                <a href="{{ route('sale.invoice.pdf', $sale->id) }}" class="btn btn-sm btn-danger">
+                    <i class="fa-solid fa-file-pdf me-1"></i> Export PDF
+                </a>
+                <button onclick="window.print()" class="btn btn-sm btn-dark">
+                    <i class="fa-solid fa-print me-1"></i> Print
+                </button>
+            </div>
         </div>
 
-        <div class="row g-4">
+        <div id="printable-invoice" class="row g-4">
 
-            {{-- Left: Invoice Info --}}
+            {{-- Left: Client Info --}}
             <div class="col-lg-4">
                 <div class="card border-0 shadow-sm rounded-4 h-100">
                     <div class="card-body p-4">
+                        <p class="text-uppercase fw-bold text-muted mb-3" style="font-size:11px; letter-spacing:1px;">Client
+                            info</p>
 
-                        <h6 class="fw-bold text-muted mb-3 text-uppercase" style="font-size: 11px; letter-spacing: 1px;">
-                            Client Info</h6>
-
-                        <div class="mb-3">
-                            <label class="form-label text-muted small">Client Name</label>
-                            <p class="fw-semibold mb-0">{{ $sale->client->name }}</p>
+                        {{-- Avatar + Name --}}
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary
+                                    d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                                style="width:44px;height:44px;font-size:15px;">
+                                {{ strtoupper(substr($sale->client->name, 0, 2)) }}
+                            </div>
+                            <div>
+                                <p class="fw-semibold mb-0">{{ $sale->client->name }}</p>
+                                <p class="text-muted small mb-0">{{ $sale->client->email }}</p>
+                            </div>
                         </div>
                         <hr>
+
                         <div class="mb-3">
-                            <label class="form-label text-muted small">Email</label>
-                            <p class="fw-semibold mb-0">{{ $sale->client->email }}</p>
-                        </div>
-                        <hr>
-                        <div class="mb-3">
-                            <label class="form-label text-muted small">Phone</label>
+                            <p class="text-muted small mb-1">Phone</p>
                             <p class="fw-semibold mb-0">{{ $sale->client->phone }}</p>
                         </div>
                         <hr>
+
                         <div class="mb-3">
-                            <label class="form-label text-muted small">Credit Period</label>
-                            <p class="mb-0">
-                                <span class="badge fs-6 rounded-pill text-bg-primary">{{ $sale->client->credit_period }}
-                                    days</span>
-                            </p>
+                            <p class="text-muted small mb-1">Credit period</p>
+                            <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary fs-6">
+                                {{ $sale->client->credit_period }} days
+                            </span>
                         </div>
                         <hr>
-                        <div class="mb-0">
-                            <label class="form-label text-muted small">Address</label>
-                            <p class="fw-semibold mb-0">{{ $sale->client->address }}</p>
-                        </div>
 
+                        <div>
+                            <p class="text-muted small mb-1">Address</p>
+                            <p class="text-muted mb-0" style="font-size:13px;">{{ $sale->client->address }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -58,11 +107,11 @@
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-4">
 
-                        {{-- Invoice Header --}}
+                        {{-- Invoice No + Status --}}
                         <div class="d-flex justify-content-between align-items-start mb-4">
                             <div>
-                                <h6 class="fw-bold text-muted mb-1 text-uppercase"
-                                    style="font-size: 11px; letter-spacing: 1px;">Invoice</h6>
+                                <p class="text-uppercase fw-bold text-muted mb-1"
+                                    style="font-size:11px;letter-spacing:1px;">Invoice</p>
                                 <h5 class="fw-bold mb-0">#{{ $sale->invoice_no }}</h5>
                             </div>
                             @php
@@ -72,49 +121,59 @@
                                     'overdue' => 'bg-danger-subtle text-danger-emphasis',
                                 };
                             @endphp
-                            <span class="badge rounded-pill {{ $badgeClass }} fs-6">{{ ucfirst($sale->status) }}</span>
+                            <span class="badge rounded-pill {{ $badgeClass }} fs-6">
+                                {{ ucfirst($sale->status) }}
+                            </span>
                         </div>
 
-                        {{-- Invoice Meta --}}
+                        {{-- Meta Info --}}
                         <div class="row g-3 mb-4">
                             <div class="col-sm-4">
-                                <p class="text-muted small mb-1">Invoice Date</p>
-                                <p class="fw-semibold mb-0">{{ $sale->invoice_date->format('d-m-Y') }}</p>
+                                <div class="bg-body-secondary rounded-3 p-3">
+                                    <p class="text-muted small mb-1">Invoice date</p>
+                                    <p class="fw-semibold mb-0">{{ $sale->invoice_date->format('d-m-Y') }}</p>
+                                </div>
                             </div>
                             <div class="col-sm-4">
-                                <p class="text-muted small mb-1">Due Date</p>
-                                <p class="fw-semibold mb-0">{{ $sale->due_date->format('d-m-Y') }}</p>
+                                <div class="bg-body-secondary rounded-3 p-3">
+                                    <p class="text-muted small mb-1">Due date</p>
+                                    <p class="fw-semibold mb-0 {{ $sale->status === 'overdue' ? 'text-danger' : '' }}">
+                                        {{ $sale->due_date->format('d-m-Y') }}
+                                    </p>
+                                </div>
                             </div>
                             <div class="col-sm-4">
-                                <p class="text-muted small mb-1">PO Number</p>
-                                <p class="fw-semibold mb-0">{{ $sale->po_no ?? '—' }}</p>
+                                <div class="bg-body-secondary rounded-3 p-3">
+                                    <p class="text-muted small mb-1">PO number</p>
+                                    <p class="fw-semibold mb-0">{{ $sale->po_no ?? '—' }}</p>
+                                </div>
                             </div>
                         </div>
 
                         {{-- Items Table --}}
-                        <div class="table-responsive mb-3">
-                            <table class="table table-bordered align-middle mb-0">
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered align-middle mb-0" style="font-size:13px;">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Item Name</th>
-                                        <th style="width: 120px" class="text-center">Quantity</th>
-                                        <th style="width: 120px" class="text-center">Price</th>
-                                        <th style="width: 130px" class="text-end">Sub Total</th>
+                                        <th>Item name</th>
+                                        <th class="text-center" style="width:90px;">Qty</th>
+                                        <th class="text-center" style="width:120px;">Price</th>
+                                        <th class="text-end" style="width:130px;">Subtotal</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($sale->salesItems as $item)
                                         <tr>
-                                            <td>{{ $item['item_name'] }}</td>
-                                            <td class="text-center">{{ Number::format($item['quantity']) }}</td>
-                                            <td class="text-center">Rs. {{ Number::format($item['price']) }}</td>
-                                            <td class="text-end">Rs. {{ Number::format($item['total']) }}</td>
+                                            <td>{{ $item->item_name }}</td>
+                                            <td class="text-center">{{ Number::format($item->quantity) }}</td>
+                                            <td class="text-center">Rs. {{ Number::format($item->price) }}</td>
+                                            <td class="text-end">Rs. {{ Number::format($item->total) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="3" class="text-end fw-bold">Total Amount</td>
+                                        <td colspan="3" class="text-end fw-bold">Total amount</td>
                                         <td class="text-end fw-bold">Rs. {{ Number::format($sale->amount) }}</td>
                                     </tr>
                                 </tfoot>
@@ -122,41 +181,35 @@
                         </div>
 
                         {{-- Note --}}
-                        <div class="mb-4">
+                        <div class="bg-body-secondary rounded-3 p-3 mb-4">
                             <p class="text-muted small mb-1">Note</p>
-                            <p class="mb-0">{{ $sale->note ?? 'No note added.' }}</p>
+                            <p class="mb-0" style="font-size:13px;">{{ $sale->note ?? 'No note added.' }}</p>
                         </div>
-                        {{-- Note ke baad add karo --}}
-                        <div class="d-flex justify-content-end gap-2">
 
+                        {{-- Bottom Actions --}}
+                        <div class="d-flex justify-content-end gap-2 flex-wrap">
                             @if ($sale->status !== 'paid')
                                 <form action="{{ route('sales.status', $sale->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit" class="btn btn-success px-4">
-                                        <i class="fa-solid fa-check me-2"></i>Mark as Paid
+                                    @csrf @method('PUT')
+                                    <button class="btn btn-success px-4">
+                                        <i class="fa-solid fa-check me-1"></i> Mark as paid
                                     </button>
                                 </form>
                                 <a href="{{ route('sales.edit', $sale->id) }}" class="btn btn-primary px-4">
-                                    <i class="fa-solid fa-pen me-2"></i>Edit
+                                    <i class="fa-solid fa-pen me-1"></i> Edit
                                 </a>
                             @endif
-
-
-
                             <form action="{{ route('sales.destroy', $sale->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger px-4">
-                                    <i class="fa-solid fa-trash me-2"></i>Delete
+                                @csrf @method('DELETE')
+                                <button class="btn btn-danger px-4">
+                                    <i class="fa-solid fa-trash me-1"></i> Delete
                                 </button>
                             </form>
-
                         </div>
+
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 @endsection

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SaleInvoiceExport;
 use App\Exports\SalesExport;
 use App\Models\Client;
 use App\Models\Sale;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -302,5 +304,27 @@ class SalesController extends Controller
         $filename = 'sales-'.now()->format('d-m-Y').'.xlsx';
 
         return Excel::download(new SalesExport, $filename);
+    }
+
+    /**
+     * For Export Excel File Invoice
+     */
+    public function invoiceExport($id)
+    {
+        $invoice = 'invoice-'.now()->format('d-m-Y').'.xlsx';
+
+        return Excel::download(new SaleInvoiceExport($id), $invoice);
+    }
+
+    /**
+     * For generate Invoice Pdf
+     */
+    public function invoicePdf($id)
+    {
+        $sale = Sale::with(['salesItems', 'client'])->findOrFail($id);
+
+        $pdf = Pdf::loadView('pdf.invoice', compact('sale'));
+
+        return $pdf->download('invoice.pdf');
     }
 }
