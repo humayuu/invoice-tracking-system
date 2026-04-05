@@ -25,24 +25,28 @@
                         <div class="card-body p-4">
 
                             <div class="form-floating mb-3">
-                                <select class="form-select" id="clientId" name="client_id">
+                                <select class="form-select" id="clientFilter" name="client_id">
                                     <option value="" disabled>Select Client</option>
-                                    @forelse ($clients as $client)
-                                        <option value="{{ $client->id }}"
+                                    @foreach ($clients as $client)
+                                        <option value="{{ $client->id }}" data-period="{{ $client->credit_period ?? 0 }}"
                                             {{ $sale->client_id === $client->id ? 'selected' : '' }}>
                                             {{ $client->name }}
                                         </option>
-                                    @empty
-                                        <option>No Record Found!</option>
-                                    @endforelse
+                                    @endforeach
                                 </select>
-                                <label for="clientId">Client</label>
                             </div>
 
                             <div class="form-floating mb-3">
                                 <input type="date" class="form-control" id="saleDate" name="invoice_date"
                                     placeholder="Date" value="{{ $sale->invoice_date->format('Y-m-d') }}">
                                 <label for="saleDate">Invoice Date</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input type="date" class="form-control" id="dueDate" name="due_date"
+                                    placeholder="Due Date" readonly
+                                    value="{{ $sale->due_date instanceof \Carbon\Carbon ? $sale->due_date->format('Y-m-d') : $sale->due_date }}">
+                                <label for="dueDate">Due Date</label>
                             </div>
 
                             <div class="form-floating mb-3">
@@ -135,4 +139,50 @@
             </div>
         </form>
     </div>
+    <script>
+        const clientSelect = document.getElementById('clientFilter');
+        const saleDateInput = document.getElementById('saleDate');
+        const dueDateInput = document.getElementById('dueDate');
+
+        let lastClientValue = clientSelect.value;
+        let userHasChanged = false;
+
+        function calculateDueDate() {
+            const invoiceDateValue = saleDateInput.value;
+
+            if (!clientSelect.value || !invoiceDateValue) {
+                return;
+            }
+
+            const selectedOption = clientSelect.options[clientSelect.selectedIndex];
+            const creditDays = parseInt(selectedOption.dataset.period, 10);
+
+            if (isNaN(creditDays)) {
+                return;
+            }
+
+            const [y, m, d] = invoiceDateValue.split('-').map(Number);
+            const invoiceDate = new Date(y, m - 1, d);
+            invoiceDate.setDate(invoiceDate.getDate() + creditDays);
+
+            const year = invoiceDate.getFullYear();
+            const month = String(invoiceDate.getMonth() + 1).padStart(2, '0');
+            const day = String(invoiceDate.getDate()).padStart(2, '0');
+
+            dueDateInput.value = `${year}-${month}-${day}`;
+        }
+
+        saleDateInput.addEventListener('change', function() {
+            userHasChanged = true;
+            calculateDueDate();
+        });
+
+        setInterval(function() {
+            if (clientSelect.value !== lastClientValue) {
+                lastClientValue = clientSelect.value;
+                userHasChanged = true;
+                calculateDueDate();
+            }
+        }, 200);
+    </script>
 @endsection

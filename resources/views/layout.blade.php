@@ -85,10 +85,20 @@
                     <div class="dropdown">
                         <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false"
                             role="button">
-                            <div class="rounded-circle bg-dark bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold"
-                                style="width:50px; height:50px; font-size:18px;">
-                                {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
-                            </div>
+                            @php $user = Auth::user(); @endphp
+
+                            @if ($user->google_avatar)
+                                <img src="{{ $user->google_avatar }}" class="rounded-circle"
+                                    style="width:50px; height:50px; object-fit:cover;">
+                            @elseif ($user->profile_photo_path)
+                                <img src="{{ Storage::disk('public')->url($user->profile_photo_path) }}"
+                                    class="rounded-circle" style="width:50px; height:50px; object-fit:cover;">
+                            @else
+                                <div class="rounded-circle bg-dark bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold"
+                                    style="width:50px; height:50px; font-size:18px;">
+                                    {{ strtoupper(substr($user->name, 0, 2)) }}
+                                </div>
+                            @endif
                             <div class="d-none d-sm-flex flex-column">
                                 <span class="user-name">{{ Auth::user()->name }}</span>
                             </div>

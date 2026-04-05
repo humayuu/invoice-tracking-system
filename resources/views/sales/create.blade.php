@@ -27,7 +27,7 @@
                                 <select class="form-select" id="clientFilter" name="client_id">
                                     <option value="" disabled selected>Select Client</option>
                                     @foreach ($clients as $client)
-                                        <option value="{{ $client->id }}" data-period="{{ $client->credit_period }}">
+                                        <option value="{{ $client->id }}" data-period="{{ $client->credit_period ?? 0 }}">
                                             {{ $client->name }}
                                         </option>
                                     @endforeach
@@ -98,8 +98,7 @@
                                         <tr>
                                             <td colspan="3" class="text-end fw-semibold">Total Amount</td>
                                             <td><input type="text" name="total_amount" id="total_amount"
-                                                    class="form-control fw-bold" readonly>
-                                            </td>
+                                                    class="form-control fw-bold" readonly></td>
                                             <td></td>
                                         </tr>
                                     </tfoot>
@@ -134,28 +133,41 @@
         const dueDateInput = document.getElementById('dueDate');
 
         function calculateDueDate() {
-            const selectedClient = clientSelect.options[clientSelect.selectedIndex];
             const invoiceDateValue = saleDateInput.value;
 
-            // Only calculate if both a client is selected and a date is picked
-            if (selectedClient && selectedClient.dataset.period && invoiceDateValue) {
-                const creditDays = parseInt(selectedClient.dataset.period);
-                const invoiceDate = new Date(invoiceDateValue);
-
-                // Add the credit days to the invoice date
-                invoiceDate.setDate(invoiceDate.getDate() + creditDays);
-
-                // Format back to YYYY-MM-DD for the input field
-                const year = invoiceDate.getFullYear();
-                const month = String(invoiceDate.getMonth() + 1).padStart(2, '0');
-                const day = String(invoiceDate.getDate()).padStart(2, '0');
-
-                dueDateInput.value = `${year}-${month}-${day}`;
+            if (!clientSelect.value || !invoiceDateValue) {
+                dueDateInput.value = '';
+                return;
             }
+
+            const selectedOption = clientSelect.options[clientSelect.selectedIndex];
+            const rawPeriod = selectedOption.dataset.period;
+            const creditDays = parseInt(rawPeriod, 10);
+
+            if (isNaN(creditDays)) {
+                dueDateInput.value = '';
+                return;
+            }
+
+            const [y, m, d] = invoiceDateValue.split('-').map(Number);
+            const invoiceDate = new Date(y, m - 1, d);
+            invoiceDate.setDate(invoiceDate.getDate() + creditDays);
+
+            const year = invoiceDate.getFullYear();
+            const month = String(invoiceDate.getMonth() + 1).padStart(2, '0');
+            const day = String(invoiceDate.getDate()).padStart(2, '0');
+
+            dueDateInput.value = `${year}-${month}-${day}`;
         }
 
-        // Event Listeners
-        clientSelect.addEventListener('change', calculateDueDate);
         saleDateInput.addEventListener('change', calculateDueDate);
+
+        let lastClientValue = '';
+        setInterval(function() {
+            if (clientSelect.value !== lastClientValue) {
+                lastClientValue = clientSelect.value;
+                calculateDueDate();
+            }
+        }, 200);
     </script>
 @endsection

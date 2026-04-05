@@ -188,23 +188,94 @@
 
                         {{-- Bottom Actions --}}
                         <div class="d-flex justify-content-end gap-2 flex-wrap">
+                            {{-- Mark as Paid Button --}}
                             @if ($sale->status !== 'paid')
-                                <form action="{{ route('sales.status', $sale->id) }}" method="POST" class="d-inline">
-                                    @csrf @method('PUT')
-                                    <button class="btn btn-success px-4">
-                                        <i class="fa-solid fa-check me-1"></i> Mark as paid
-                                    </button>
-                                </form>
-                                <a href="{{ route('sales.edit', $sale->id) }}" class="btn btn-primary px-4">
-                                    <i class="fa-solid fa-pen me-1"></i> Edit
-                                </a>
-                            @endif
-                            <form action="{{ route('sales.destroy', $sale->id) }}" method="POST" class="d-inline">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-danger px-4">
-                                    <i class="fa-solid fa-trash me-1"></i> Delete
+                                <button type="button" class="btn btn-success px-4" data-bs-toggle="modal"
+                                    data-bs-target="#confirmPaidModal" title="Mark invoice as paid">
+                                    <i class="fa-solid fa-check me-2"></i>Mark as Paid
                                 </button>
-                            </form>
+
+                                {{-- Edit Button --}}
+                                <a href="{{ route('sales.edit', $sale->id) }}" class="btn btn-primary px-4"
+                                    title="Edit invoice details">
+                                    <i class="fa-solid fa-pen me-2"></i>Edit
+                                </a>
+                            @else
+                                <span class="badge bg-success bg-opacity-25 text-success py-2 px-3">
+                                    <i class="fa-solid fa-check-circle me-1"></i>Paid
+                                </span>
+                            @endif
+
+                            {{-- Delete Button --}}
+                            <button type="button" class="btn btn-danger px-4" data-bs-toggle="modal"
+                                data-bs-target="#confirmDeleteModal" title="Delete invoice permanently">
+                                <i class="fa-solid fa-trash me-2"></i>Delete
+                            </button>
+                        </div>
+
+                        {{-- Mark as Paid Confirmation Modal --}}
+                        @if ($sale->status !== 'paid')
+                            <div class="modal fade" id="confirmPaidModal" tabindex="-1">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+                                        <div class="modal-header border-bottom">
+                                            <h5 class="modal-title">
+                                                <i class="fa-solid fa-question-circle text-warning me-2"></i>Confirm
+                                                Payment
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p class="mb-0">Mark this invoice as <strong>paid</strong>?</p>
+                                        </div>
+                                        <div class="modal-footer border-top">
+                                            <button type="button" class="btn btn-light"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{{ route('sales.status', $sale->id) }}" method="POST"
+                                                class="d-inline">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="fa-solid fa-check me-1"></i>Confirm
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Delete Confirmation Modal --}}
+                        <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header border-bottom">
+                                        <h5 class="modal-title">
+                                            <i class="fa-solid fa-exclamation-triangle text-danger me-2"></i>Confirm
+                                            Deletion
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="mb-0">Are you sure you want to delete this invoice?</p>
+                                        <p class="text-danger small mt-2">
+                                            <i class="fa-solid fa-info-circle me-1"></i>This action cannot be undone.
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer border-top">
+                                        <button type="button" class="btn btn-light"
+                                            data-bs-dismiss="modal">Cancel</button>
+                                        <form action="{{ route('sales.destroy', $sale->id) }}" method="POST"
+                                            class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fa-solid fa-trash me-1"></i>Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                     </div>

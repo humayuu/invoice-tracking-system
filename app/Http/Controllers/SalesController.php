@@ -119,7 +119,7 @@ class SalesController extends Controller
      */
     public function create()
     {
-        $clients = Client::all();
+        $clients = Client::where('user_id', Auth::id())->get();
 
         return view('sales.create', compact('clients'));
     }
@@ -202,7 +202,7 @@ class SalesController extends Controller
         if ($sale->status === 'paid') {
             return redirect()->back();
         }
-        $clients = Client::all();
+        $clients = Client::where('user_id', Auth::id())->get();
         $sale->load(['client', 'salesItems']);
 
         return view('sales.edit', compact('sale', 'clients'));
