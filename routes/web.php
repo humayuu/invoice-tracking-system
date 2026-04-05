@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\GoogleLoginController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SalesController;
@@ -37,6 +38,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('supplier', SupplierController::class);
     Route::resource('sales', SalesController::class);
     Route::resource('purchase', PurchaseController::class);
+
+    Route::post('/notifications/mark-all-read',
+        [NotificationController::class, 'markAllRead'])
+        ->name('notifications.markAllRead');
+
+    Route::get('/notifications/{id}/read',
+        [NotificationController::class, 'markRead'])
+        ->name('notifications.read');
 });
 
 Route::get('/forgot-password', function () {

@@ -32,7 +32,7 @@
                         </div>
 
                         <!-- Google Button -->
-                        <a href=""
+                        <a href="{{ route('google.redirect') }}"
                             class="btn w-100 py-2 fw-semibold mb-3 d-flex align-items-center justify-content-center gap-2"
                             style="border: 1px solid #dadce0; background:#fff; color:#3c4043; font-size:0.9rem; border-radius:8px; transition: box-shadow 0.2s;"
                             onmouseover="this.style.boxShadow='0 1px 6px rgba(0,0,0,0.15)'"
@@ -68,7 +68,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-regular fa-user"></i></span>
                                     <input type="text" class="form-control" name="name" id="name"
-                                        placeholder="Enter Your Full Name" autofocus>
+                                        placeholder="Enter Your Full Name" autofocus value="{{ old('name') }}">
                                 </div>
                                 @error('name')
                                     <span class="text-danger">{{ $message }}</span>
@@ -81,7 +81,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
                                     <input type="email" class="form-control" name="email" id="email"
-                                        placeholder="Enter Your Email">
+                                        placeholder="Enter Your Email" value="{{ old('email') }}">
                                 </div>
                                 @error('email')
                                     <span class="text-danger">{{ $message }}</span>

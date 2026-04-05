@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Notifications\PurchaseOverdueNotification;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\DatabaseNotification;
 
 class Purchase extends Model
 {
@@ -30,5 +32,30 @@ class Purchase extends Model
         } while (self::where('invoice_no', $invoice_no)->exists());
 
         return $invoice_no;
+    }
+
+    public function overdueNotification()
+    {
+        return $this->hasMany(DatabaseNotification::class,
+            'data->purchase_id', 'id')
+            ->where('type', PurchaseOverdueNotification::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($purchase) {
+            User::find($purchase->user_id)
+                ?->notifications()
+                ->where('type', PurchaseOverdueNotification::class)
+                ->whereJsonContains('data->purchase_id', $purchase->id)
+                ->delete();
+        });
     }
 }

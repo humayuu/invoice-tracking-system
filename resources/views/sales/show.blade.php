@@ -247,33 +247,50 @@
 
                         {{-- Delete Confirmation Modal --}}
                         <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-                            <div class="modal-dialog modal-sm">
-                                <div class="modal-content">
-                                    <div class="modal-header border-bottom">
-                                        <h5 class="modal-title">
-                                            <i class="fa-solid fa-exclamation-triangle text-danger me-2"></i>Confirm
-                                            Deletion
-                                        </h5>
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow">
+
+                                    {{-- Header --}}
+                                    <div class="modal-header border-0 pb-0">
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
-                                    <div class="modal-body">
-                                        <p class="mb-0">Are you sure you want to delete this invoice?</p>
-                                        <p class="text-danger small mt-2">
-                                            <i class="fa-solid fa-info-circle me-1"></i>This action cannot be undone.
+
+                                    {{-- Body --}}
+                                    <div class="modal-body text-center px-4 pb-0">
+                                        {{-- Icon --}}
+                                        <div class="mb-3">
+                                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10"
+                                                style="width: 70px; height: 70px;">
+                                                <i class="fa-solid fa-trash-can text-danger" style="font-size: 28px;"></i>
+                                            </div>
+                                        </div>
+
+                                        {{-- Title --}}
+                                        <h5 class="fw-bold mb-2">Delete Invoice?</h5>
+
+                                        {{-- Message --}}
+                                        <p class="text-muted mb-1">Are you sure you want to delete this invoice?</p>
+                                        <p class="text-danger small mb-0">
+                                            <i class="fa-solid fa-circle-exclamation me-1"></i>
+                                            This action cannot be undone.
                                         </p>
                                     </div>
-                                    <div class="modal-footer border-top">
-                                        <button type="button" class="btn btn-light"
-                                            data-bs-dismiss="modal">Cancel</button>
+
+                                    {{-- Footer --}}
+                                    <div class="modal-footer border-0 justify-content-center gap-2 pt-4">
+                                        <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">
+                                            Cancel
+                                        </button>
                                         <form action="{{ route('sales.destroy', $sale->id) }}" method="POST"
                                             class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">
-                                                <i class="fa-solid fa-trash me-1"></i>Delete
+                                            <button type="submit" class="btn btn-danger px-4">
+                                                <i class="fa-solid fa-trash me-1"></i> Delete
                                             </button>
                                         </form>
                                     </div>
+
                                 </div>
                             </div>
                         </div>

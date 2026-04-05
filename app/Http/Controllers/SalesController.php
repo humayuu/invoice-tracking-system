@@ -98,7 +98,7 @@ class SalesController extends Controller
                         <form action="'.route('sales.destroy', $sale->id).'"
                               method="POST" class="d-inline">
                             '.csrf_field().method_field('DELETE').'
-                            <button type="submit" class="btn btn-sm btn-danger border rounded-3">
+                            <button type="submit"  class="btn btn-sm btn-danger border rounded-3">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </form>';

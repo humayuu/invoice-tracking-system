@@ -70,15 +70,76 @@
                     <div class="dropdown">
                         <button class="topbar-action" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-regular fa-bell"></i>
-                            <span
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger fw-bold lh-1 px-1 py-1">3</span>
+
+                            @if (auth()->user()->unreadNotifications->count() > 0)
+                                <span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger fw-bold lh-1 px-1 py-1">
+                                    {{ auth()->user()->unreadNotifications->count() }}
+                                </span>
+                            @endif
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end p-2" style="width: 250px;">
+
+                        <ul class="dropdown-menu dropdown-menu-end p-2" style="width: 300px;">
                             <li>
-                                <h6 class="dropdown-header">Notifications</h6>
+                                <div class="d-flex justify-content-between align-items-center px-3 py-1">
+                                    <h6 class="dropdown-header p-0 m-0">Notifications</h6>
+
+                                    @if (auth()->user()->unreadNotifications->count() > 0)
+                                        <a href="#" id="markAllRead" class="text-danger" style="font-size: 11px;">
+                                            Mark all read
+                                        </a>
+                                    @endif
+                                </div>
                             </li>
-                            <li><a class="dropdown-item py-2" href="#"><i
-                                        class="fa-solid fa-circle-info text-primary me-2"></i> Over Due Invoice</a></li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            @forelse(auth()->user()->notifications->take(10) as $notification)
+                                <li>
+                                    <a class="dropdown-item py-2 {{ is_null($notification->read_at) ? 'bg-light' : '' }}"
+                                        href="{{ route('notifications.read', $notification->id) }}">
+
+                                        @if ($notification->data['type'] === 'sale')
+                                            <span class="badge bg-primary me-1">Sale</span>
+                                        @else
+                                            <span class="badge bg-warning me-1">Purchase</span>
+                                        @endif
+
+                                        <span class="fw-semibold" style="font-size: 13px;">
+                                            {{ $notification->data['invoice_no'] }}
+                                        </span>
+
+                                        @if (is_null($notification->read_at))
+                                            <span class="float-end">
+                                                <i class="fa-solid fa-circle text-danger" style="font-size: 8px;"></i>
+                                            </span>
+                                        @endif
+
+                                        <br>
+
+                                        <small class="text-muted">
+                                            Amount: {{ number_format($notification->data['amount'], 2) }}
+                                        </small>
+                                        <br>
+
+                                        <small class="text-danger">
+                                            <i class="fa-solid fa-clock me-1"></i>
+                                            Due: {{ $notification->data['due_date'] }}
+                                        </small>
+
+                                    </a>
+                                </li>
+                            @empty
+                                <li>
+                                    <p class="text-center text-muted py-3 mb-0" style="font-size: 13px;">
+                                        <i class="fa-regular fa-bell-slash me-1"></i>
+                                        No notifications
+                                    </p>
+                                </li>
+                            @endforelse
+
                         </ul>
                     </div>
 
@@ -275,6 +336,28 @@
                     }
                 });
             }
+        });
+    </script>
+    <script>
+        $('#markAllRead').on('click', function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '{{ route('notifications.markAllRead') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function() {
+                    $('.badge.bg-danger').remove();
+
+                    $('.dropdown-item').removeClass('bg-light');
+
+                    $('.fa-circle.text-danger').closest('span').remove();
+
+                    $('#markAllRead').hide();
+                }
+            });
         });
     </script>
 </body>

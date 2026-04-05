@@ -78,7 +78,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
                                     <input type="email" class="form-control" name="email" id="email"
-                                        placeholder="Enter Your Email" autofocus>
+                                        placeholder="Enter Your Email" autofocus value="{{ old('email') }}">
                                 </div>
                                 @error('email')
                                     <span class="text-danger">{{ $message }}</span>

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Notifications\SaleOverdueNotification;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\DatabaseNotification;
 
 class Sale extends Model
 {
@@ -24,6 +26,27 @@ class Sale extends Model
         'amount' => 'decimal:2',
     ];
 
+    // -----------------------------------------------
+    // When a Sale is deleted, automatically delete
+    // its related overdue notification as well
+    // -----------------------------------------------
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($sale) {
+            User::find($sale->user_id)
+                ?->notifications()
+                ->where('type', SaleOverdueNotification::class)
+                ->whereJsonContains('data->sale_id', $sale->id)
+                ->delete();
+        });
+    }
+
+    // -----------------------------------------------
+    // Auto-generate unique invoice number
+    // Keep regenerating until a unique one is found
+    // -----------------------------------------------
     public static function generateInvoiceNo(): string
     {
         do {
@@ -33,7 +56,18 @@ class Sale extends Model
         return $invoice_no;
     }
 
-    // ======= RelationShip ============//
+    // -----------------------------------------------
+    // Check if an overdue notification already exists
+    // for this sale - used to prevent duplicates
+    // -----------------------------------------------
+    public function overdueNotification()
+    {
+        return $this->hasMany(DatabaseNotification::class,
+            'data->sale_id', 'id')
+            ->where('type', SaleOverdueNotification::class);
+    }
+
+    // =============== Relationships =============== //
 
     public function salesItems()
     {
@@ -43,5 +77,10 @@ class Sale extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
