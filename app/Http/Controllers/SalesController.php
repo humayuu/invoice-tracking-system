@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\SaleInvoiceExport;
 use App\Exports\SalesExport;
+use App\Http\Requests\StoreSaleRequest;
 use App\Models\Client;
 use App\Models\Sale;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -127,19 +128,8 @@ class SalesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreSaleRequest $request)
     {
-        $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'invoice_date' => 'required|date',
-            'po_no' => 'nullable|string|max:50',
-            'note' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.item_name' => 'required|string',
-            'items.*.quantity' => 'required|numeric|min:1',
-            'items.*.price' => 'required|numeric|min:0',
-            'items.*.sub_total' => 'required|numeric|min:0',
-        ]);
 
         try {
             DB::beginTransaction();
@@ -211,22 +201,9 @@ class SalesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Sale $sale)
+    public function update(StoreSaleRequest $request, Sale $sale)
     {
         abort_if($sale->user_id !== Auth::id(), 403);
-
-        $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'invoice_date' => 'required|date',
-            'po_no' => 'nullable|string|max:50',
-            'note' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.item_name' => 'required|string',
-            'items.*.quantity' => 'required|numeric|min:1',
-            'items.*.price' => 'required|numeric|min:0',
-            'items.*.sub_total' => 'required|numeric|min:0',
-        ]);
-
         try {
             DB::beginTransaction();
 
