@@ -49,4 +49,5 @@ document.getElementById("tbody").addEventListener("input", (e) => {
     let price = row.querySelector(".price").value || 0;
     row.querySelector(".sub-total").value = (qty * price).toFixed(2);
     calcTotal();
+    window.dispatchEvent(new CustomEvent('itemsUpdated'));
 });

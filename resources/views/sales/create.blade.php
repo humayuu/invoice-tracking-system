@@ -131,6 +131,132 @@
         const clientSelect = document.getElementById('clientFilter');
         const saleDateInput = document.getElementById('saleDate');
         const dueDateInput = document.getElementById('dueDate');
+        const form = document.getElementById('addForm');
+
+        function showError(input, message) {
+            input.classList.add('is-invalid');
+            let feedback = input.parentElement.querySelector('.invalid-feedback');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                input.parentElement.appendChild(feedback);
+            }
+            feedback.textContent = message;
+        }
+
+        function clearError(input) {
+            input.classList.remove('is-invalid');
+            const feedback = input.parentElement.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+        }
+
+        function validateClient() {
+            if (!clientSelect.value) {
+                showError(clientSelect, 'Please select a client');
+                return false;
+            }
+            clearError(clientSelect);
+            return true;
+        }
+
+        function validateInvoiceDate() {
+            if (!saleDateInput.value) {
+                showError(saleDateInput, 'Please select invoice date');
+                return false;
+            }
+            clearError(saleDateInput);
+            return true;
+        }
+
+        function validatePoNumber() {
+            const poInput = document.getElementById('poNumber');
+            if (poInput.value && poInput.value.length > 50) {
+                showError(poInput, 'Purchase Order No must be 50 characters or less');
+                return false;
+            }
+            clearError(poInput);
+            return true;
+        }
+
+        function validateItems() {
+            const rows = document.querySelectorAll('#tbody tr');
+            let hasValidItem = false;
+            let hasErrors = false;
+
+            rows.forEach((row, index) => {
+                const itemName = row.querySelector('input[name*="item_name"]');
+                const quantity = row.querySelector('input[name*="quantity"]');
+                const price = row.querySelector('input[name*="price"]');
+
+                if (!itemName.value.trim()) {
+                    showError(itemName, 'Item name is required');
+                    hasErrors = true;
+                } else {
+                    clearError(itemName);
+                }
+
+                if (!quantity.value || parseFloat(quantity.value) < 1) {
+                    showError(quantity, 'Quantity must be at least 1');
+                    hasErrors = true;
+                } else {
+                    clearError(quantity);
+                }
+
+                if (price.value === '' || parseFloat(price.value) < 0) {
+                    showError(price, 'Price must be 0 or greater');
+                    hasErrors = true;
+                } else {
+                    clearError(price);
+                }
+
+                if (itemName.value.trim() && quantity.value && parseFloat(quantity.value) >= 1 && price.value !== '' && parseFloat(price.value) >= 0) {
+                    hasValidItem = true;
+                }
+            });
+
+            if (!hasValidItem && rows.length > 0) {
+                const firstItemName = rows[0].querySelector('input[name*="item_name"]');
+                if (firstItemName && !firstItemName.value.trim()) {
+                    showError(firstItemName, 'At least one item is required');
+                }
+                return false;
+            }
+
+            if (rows.length === 0) {
+                return false;
+            }
+
+            return !hasErrors && hasValidItem;
+        }
+
+        function validateForm() {
+            const isClientValid = validateClient();
+            const isDateValid = validateInvoiceDate();
+            const isPoValid = validatePoNumber();
+            const isItemsValid = validateItems();
+
+            return isClientValid && isDateValid && isPoValid && isItemsValid;
+        }
+
+        clientSelect.addEventListener('change', validateClient);
+        saleDateInput.addEventListener('change', validateInvoiceDate);
+        document.getElementById('poNumber').addEventListener('input', validatePoNumber);
+
+        document.getElementById('tbody').addEventListener('input', function(e) {
+            if (e.target.classList.contains('qty') || e.target.classList.contains('price') || e.target.classList.contains('item_name')) {
+                validateItems();
+            }
+        });
+
+        window.addEventListener('itemsUpdated', function() {
+            validateItems();
+        });
+
+        form.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+            }
+        });
 
         function calculateDueDate() {
             const invoiceDateValue = saleDateInput.value;
