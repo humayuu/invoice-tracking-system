@@ -143,10 +143,6 @@ Configure the redirect URI in the Google Cloud console to match `GOOGLE_REDIRECT
 
 By default `.env` uses `MAIL_MAILER=log` (emails go to the log). Change mail settings when you need real delivery.
 
-## Health check
-
-Laravel’s built-in health route is available at `/up` when the application is running.
-
 ## Tests
 
 ```bash
