@@ -101,13 +101,14 @@ class PurchaseController extends Controller
                            class="btn btn-sm btn-dark border rounded-3 me-1">
                             <i class="fa-solid fa-eye"></i>
                         </a>
-                        <form action="'.route('purchase.destroy', $purchase->id).'"
-                              method="POST" class="d-inline">
-                            '.csrf_field().method_field('DELETE').'
-                            <button type="submit" class="btn btn-sm btn-danger border rounded-3">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </form>';
+                        <button type="button" class="btn btn-sm btn-danger border rounded-3 btn-global-delete-confirm"
+                            data-bs-toggle="modal" data-bs-target="#globalDeleteModal"
+                            data-delete-url="'.route('purchase.destroy', $purchase->id).'"
+                            data-delete-title="Delete purchase?"
+                            data-delete-message="'.e('Permanently delete purchase invoice '.$purchase->invoice_no.'?').'"
+                            title="Delete purchase">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>';
 
                     return $buttons;
                 })

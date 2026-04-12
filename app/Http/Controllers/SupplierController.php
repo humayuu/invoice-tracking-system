@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PendingOverdueStatementExport;
 use App\Models\Purchase;
 use App\Models\Supplier;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class SupplierController extends Controller
@@ -30,7 +34,7 @@ class SupplierController extends Controller
                     return '
                     <div class="d-flex justify-content-center gap-1">
 
-                        <a target="_blank" href="'.route('supplier.wise.invoices', $supplier->id).'" class="btn btn-sm px-3 btn-dark">
+                        <a href="'.route('supplier.wise.invoices', $supplier->id).'" class="btn btn-sm px-3 btn-dark">
                             Invoices
                         </a>
 
@@ -42,13 +46,14 @@ class SupplierController extends Controller
                             <i class="fa-solid fa-pen"></i>
                         </a>
 
-                        <form method="POST" action="'.route('supplier.destroy', $supplier->id).'" style="display:inline-block;" onsubmit="return confirm(\'Are you sure?\')">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                            <button class="btn btn-sm btn-danger">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-sm btn-danger btn-global-delete-confirm"
+                            data-bs-toggle="modal" data-bs-target="#globalDeleteModal"
+                            data-delete-url="'.route('supplier.destroy', $supplier->id).'"
+                            data-delete-title="Delete supplier?"
+                            data-delete-message="'.e('Permanently delete supplier “'.$supplier->name.'”?').'"
+                            title="Delete supplier">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
 
                     </div>
                 ';
@@ -164,18 +169,60 @@ class SupplierController extends Controller
     }
 
     /**
-     * Purchase invoices for a supplier (current user only).
+     * Pending & overdue purchases for a supplier (statement view).
      */
     public function supplierWiseInvoices(int $id)
     {
         $supplier = Supplier::where('user_id', Auth::id())->findOrFail($id);
 
-        $invoices = Purchase::where('user_id', Auth::id())
-            ->where('supplier_id', $supplier->id)
-            ->with('supplier')
-            ->orderByDesc('id')
-            ->get();
+        $invoices = $this->pendingOverduePurchasesForSupplier($supplier);
 
         return view('suppliers.supplier_wise', compact('supplier', 'invoices'));
+    }
+
+    public function supplierWiseInvoicesPdf(int $id)
+    {
+        $supplier = Supplier::where('user_id', Auth::id())->findOrFail($id);
+        $invoices = $this->pendingOverduePurchasesForSupplier($supplier);
+
+        $pdf = Pdf::loadView('pdf.pending_overdue_statement', [
+            'documentTitle' => 'Purchase statement',
+            'partyName' => $supplier->name,
+            'creditPeriodDays' => $supplier->credit_period,
+            'statusLine' => 'Status: Pending & overdue invoices only',
+            'invoices' => $invoices,
+        ]);
+        $pdf->setPaper('a4', 'landscape');
+        $safe = preg_replace('/[^A-Za-z0-9._-]+/', '-', $supplier->name) ?: 'supplier';
+
+        return $pdf->download('supplier-statement-'.$safe.'-'.now()->format('d-m-Y').'.pdf');
+    }
+
+    public function supplierWiseInvoicesExport(int $id)
+    {
+        $supplier = Supplier::where('user_id', Auth::id())->findOrFail($id);
+        $invoices = $this->pendingOverduePurchasesForSupplier($supplier);
+        $safe = preg_replace('/[^A-Za-z0-9._-]+/', '-', $supplier->name) ?: 'supplier';
+        $filename = 'supplier-'.$safe.'-pending-overdue-'.now()->format('d-m-Y').'.xlsx';
+
+        return Excel::download(
+            new PendingOverdueStatementExport($supplier->name, $invoices),
+            $filename
+        );
+    }
+
+    /**
+     * @return Collection<int, Purchase>
+     */
+    private function pendingOverduePurchasesForSupplier(Supplier $supplier)
+    {
+        return Purchase::query()
+            ->where('user_id', Auth::id())
+            ->where('supplier_id', $supplier->id)
+            ->whereIn('status', ['pending', 'overdue'])
+            ->with(['purchaseItems', 'supplier'])
+            ->orderBy('due_date')
+            ->orderByDesc('id')
+            ->get();
     }
 }

@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleLoginController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
@@ -30,9 +32,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/sales-summary/pdf', [ReportController::class, 'salesSummaryPdf'])->name('reports.sales-summary.pdf');
+    Route::get('/reports/purchase-summary/pdf', [ReportController::class, 'purchaseSummaryPdf'])->name('reports.purchase-summary.pdf');
 
     Route::put('sales/status/{sale}', [SalesController::class, 'saleStatus'])->name('sales.status');
     Route::get('sales/export', [SalesController::class, 'export'])->name('sales.export');
@@ -45,7 +49,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('purchase/invoice/pdf/{id}', [PurchaseController::class, 'invoicePdf'])->name('purchase.invoice.pdf');
 
     Route::get('client/wise/invoices/{id}', [ClientController::class, 'clientWiseInvoices'])->name('client.wise.invoices');
+    Route::get('client/wise/invoices/{id}/pdf', [ClientController::class, 'clientWiseInvoicesPdf'])->name('client.wise.invoices.pdf');
+    Route::get('client/wise/invoices/{id}/export', [ClientController::class, 'clientWiseInvoicesExport'])->name('client.wise.invoices.export');
+
     Route::get('supplier/wise/invoices/{id}', [SupplierController::class, 'supplierWiseInvoices'])->name('supplier.wise.invoices');
+    Route::get('supplier/wise/invoices/{id}/pdf', [SupplierController::class, 'supplierWiseInvoicesPdf'])->name('supplier.wise.invoices.pdf');
+    Route::get('supplier/wise/invoices/{id}/export', [SupplierController::class, 'supplierWiseInvoicesExport'])->name('supplier.wise.invoices.export');
 
     Route::resource('client', ClientController::class);
     Route::resource('supplier', SupplierController::class);

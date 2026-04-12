@@ -70,17 +70,8 @@
                                 class="fa-solid fa-users fa-fw"></i><span>Clients</span></a></li>
                     <li><a href="{{ route('supplier.index') }}" class="sidebar-link"><i
                                 class="fa-solid fa-truck-field fa-fw"></i><span>Suppliers</span></a></li>
-                    <li>
-                        <a href="#reportsSubmenu" data-bs-toggle="collapse" class="sidebar-link" aria-expanded="false">
-                            <i class="fa-solid fa-file-invoice fa-fw"></i><span>Reports</span>
-                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
-                        </a>
-                        <ul class="collapse sidebar-submenu" id="reportsSubmenu">
-                            <li><a href="reports-sales.html" class="sidebar-link"><span>Sales Summery</span></a></li>
-                            <li><a href="reports-purchase.html" class="sidebar-link"><span>Purchase Summery</span></a>
-                            </li>
-                        </ul>
-                    </li>
+                    <li><a href="{{ route('reports.index') }}" class="sidebar-link"><i
+                                class="fa-solid fa-file-invoice fa-fw"></i><span>Reports</span></a></li>
                 </ul>
             </div>
         </aside>
@@ -584,6 +575,57 @@
                     $('#markAllRead').hide();
                 }
             });
+        });
+    </script>
+
+    {{-- Global delete confirmation (same style as invoice show pages) --}}
+    <div class="modal fade" id="globalDeleteModal" tabindex="-1" aria-labelledby="globalDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center px-4 pb-0">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10"
+                            style="width: 70px; height: 70px;">
+                            <i class="fa-solid fa-trash-can text-danger" style="font-size: 28px;" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold mb-2" id="globalDeleteTitle">Delete?</h5>
+                    <p class="text-muted mb-1" id="globalDeleteMessage">Are you sure?</p>
+                    <p class="text-danger small mb-0">
+                        <i class="fa-solid fa-circle-exclamation me-1" aria-hidden="true"></i>
+                        This action cannot be undone.
+                    </p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center gap-2 pt-4">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <form id="globalDeleteForm" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="fa-solid fa-trash me-1" aria-hidden="true"></i>Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('globalDeleteModal')?.addEventListener('show.bs.modal', function(event) {
+            const trigger = event.relatedTarget;
+            if (!trigger || !trigger.getAttribute('data-delete-url')) {
+                return;
+            }
+            const url = trigger.getAttribute('data-delete-url');
+            const title = trigger.getAttribute('data-delete-title') || 'Delete?';
+            const message = trigger.getAttribute('data-delete-message') ||
+                'Are you sure you want to delete this item?';
+            document.getElementById('globalDeleteForm').setAttribute('action', url);
+            document.getElementById('globalDeleteTitle').textContent = title;
+            document.getElementById('globalDeleteMessage').textContent = message;
         });
     </script>
 </body>

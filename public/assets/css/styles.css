@@ -1147,3 +1147,42 @@ a:hover {
 .topbar-action {
     position: relative;
 }
+
+/* ============================================
+   DASHBOARD
+   ============================================ */
+.dashboard-page .tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+.dashboard-section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.dashboard-quick-actions .btn {
+    white-space: nowrap;
+}
+
+.dashboard-invoice-link {
+    color: var(--text-main);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.dashboard-invoice-link:hover {
+    color: var(--primary-color);
+}
+
+.dashboard-recent-card .table > :not(caption) > * > * {
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+}
+
+.dashboard-empty-state {
+    background: var(--input-bg);
+}

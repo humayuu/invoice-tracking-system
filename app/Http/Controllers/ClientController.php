@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PendingOverdueStatementExport;
 use App\Models\Client;
 use App\Models\Sale;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class ClientController extends Controller
@@ -30,7 +34,7 @@ class ClientController extends Controller
                     return '
                     <div class="d-flex justify-content-center gap-1">
 
-                     <a target="_blank" href="'.route('client.wise.invoices', $client->id).'" class="btn btn-sm px-3 btn-dark">
+                     <a href="'.route('client.wise.invoices', $client->id).'" class="btn btn-sm px-3 btn-dark">
                             Invoices
                         </a>
 
@@ -42,13 +46,14 @@ class ClientController extends Controller
                             <i class="fa-solid fa-pen"></i>
                         </a>
 
-                        <form method="POST" action="'.route('client.destroy', $client->id).'" style="display:inline-block;" onsubmit="return confirm(\'Are you sure?\')">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                            <button class="btn btn-sm btn-danger">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-sm btn-danger btn-global-delete-confirm"
+                            data-bs-toggle="modal" data-bs-target="#globalDeleteModal"
+                            data-delete-url="'.route('client.destroy', $client->id).'"
+                            data-delete-title="Delete client?"
+                            data-delete-message="'.e('Permanently delete client “'.$client->name.'”?').'"
+                            title="Delete client">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
 
                     </div>
                 ';
@@ -164,18 +169,60 @@ class ClientController extends Controller
     }
 
     /**
-     * For Client Wise Invoice
+     * Pending & overdue sales for a client (statement view).
      */
     public function clientWiseInvoices($id)
     {
         $client = Client::where('user_id', Auth::id())->findOrFail($id);
 
-        $invoices = Sale::where('user_id', Auth::id())
-            ->where('client_id', $client->id)
-            ->with('client')
-            ->orderByDesc('id')
-            ->get();
+        $invoices = $this->pendingOverdueSalesForClient($client);
 
         return view('clients.client_wise', compact('client', 'invoices'));
+    }
+
+    public function clientWiseInvoicesPdf(int $id)
+    {
+        $client = Client::where('user_id', Auth::id())->findOrFail($id);
+        $invoices = $this->pendingOverdueSalesForClient($client);
+
+        $pdf = Pdf::loadView('pdf.pending_overdue_statement', [
+            'documentTitle' => 'Invoice statement',
+            'partyName' => $client->name,
+            'creditPeriodDays' => $client->credit_period,
+            'statusLine' => 'Status: Pending & overdue invoices only',
+            'invoices' => $invoices,
+        ]);
+        $pdf->setPaper('a4', 'landscape');
+        $safe = preg_replace('/[^A-Za-z0-9._-]+/', '-', $client->name) ?: 'client';
+
+        return $pdf->download('client-statement-'.$safe.'-'.now()->format('d-m-Y').'.pdf');
+    }
+
+    public function clientWiseInvoicesExport(int $id)
+    {
+        $client = Client::where('user_id', Auth::id())->findOrFail($id);
+        $invoices = $this->pendingOverdueSalesForClient($client);
+        $safe = preg_replace('/[^A-Za-z0-9._-]+/', '-', $client->name) ?: 'client';
+        $filename = 'client-'.$safe.'-pending-overdue-'.now()->format('d-m-Y').'.xlsx';
+
+        return Excel::download(
+            new PendingOverdueStatementExport($client->name, $invoices),
+            $filename
+        );
+    }
+
+    /**
+     * @return Collection<int, Sale>
+     */
+    private function pendingOverdueSalesForClient(Client $client)
+    {
+        return Sale::query()
+            ->where('user_id', Auth::id())
+            ->where('client_id', $client->id)
+            ->whereIn('status', ['pending', 'overdue'])
+            ->with(['salesItems', 'client'])
+            ->orderBy('due_date')
+            ->orderByDesc('id')
+            ->get();
     }
 }

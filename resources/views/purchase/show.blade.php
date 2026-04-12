@@ -77,7 +77,7 @@
                         <hr>
 
                         <div class="mb-3">
-                            <p class="text-muted small mb-1">Credit period</p>
+                            <p class="text-muted small mb-1">Credit Period</p>
                             <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary fs-6">
                                 {{ $purchase->supplier->credit_period }} days
                             </span>
@@ -188,8 +188,12 @@
                                 </span>
                             @endif
 
-                            <button type="button" class="btn btn-danger px-4" data-bs-toggle="modal"
-                                data-bs-target="#confirmDeleteModal" title="Delete invoice permanently">
+                            <button type="button" class="btn btn-danger px-4 btn-global-delete-confirm"
+                                data-bs-toggle="modal" data-bs-target="#globalDeleteModal"
+                                data-delete-url="{{ route('purchase.destroy', $purchase->id) }}"
+                                data-delete-title="Delete purchase?"
+                                data-delete-message="{{ 'Permanently delete purchase invoice '.$purchase->invoice_no.'?' }}"
+                                title="Delete purchase permanently">
                                 <i class="fa-solid fa-trash me-2"></i>Delete
                             </button>
                         </div>
@@ -224,43 +228,6 @@
                                 </div>
                             </div>
                         @endif
-
-                        <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content border-0 shadow">
-                                    <div class="modal-header border-0 pb-0">
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body text-center px-4 pb-0">
-                                        <div class="mb-3">
-                                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10"
-                                                style="width: 70px; height: 70px;">
-                                                <i class="fa-solid fa-trash-can text-danger" style="font-size: 28px;"></i>
-                                            </div>
-                                        </div>
-                                        <h5 class="fw-bold mb-2">Delete Invoice?</h5>
-                                        <p class="text-muted mb-1">Are you sure you want to delete this purchase invoice?</p>
-                                        <p class="text-danger small mb-0">
-                                            <i class="fa-solid fa-circle-exclamation me-1"></i>
-                                            This action cannot be undone.
-                                        </p>
-                                    </div>
-                                    <div class="modal-footer border-0 justify-content-center gap-2 pt-4">
-                                        <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">
-                                            Cancel
-                                        </button>
-                                        <form action="{{ route('purchase.destroy', $purchase->id) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger px-4">
-                                                <i class="fa-solid fa-trash me-1"></i> Delete
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                     </div>
                 </div>
