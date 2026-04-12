@@ -40,14 +40,26 @@ const calcTotal = () => {
     document.querySelectorAll(".sub-total").forEach((el) => {
         total += parseFloat(el.value) || 0;
     });
-    document.getElementById("total_amount").value = total.toFixed(2);
+    const totalEl = document.getElementById("total_amount");
+    if (totalEl) {
+        totalEl.value = total.toFixed(2);
+    }
 };
 
-document.getElementById("tbody").addEventListener("input", (e) => {
-    let row = e.target.closest("tr");
-    let qty = row.querySelector(".qty").value || 0;
-    let price = row.querySelector(".price").value || 0;
-    row.querySelector(".sub-total").value = (qty * price).toFixed(2);
-    calcTotal();
-    window.dispatchEvent(new CustomEvent('itemsUpdated'));
-});
+const tbodyEl = document.getElementById("tbody");
+if (tbodyEl) {
+    tbodyEl.addEventListener("input", (e) => {
+        let row = e.target.closest("tr");
+        if (!row) {
+            return;
+        }
+        let qty = row.querySelector(".qty")?.value || 0;
+        let price = row.querySelector(".price")?.value || 0;
+        const sub = row.querySelector(".sub-total");
+        if (sub) {
+            sub.value = (qty * price).toFixed(2);
+        }
+        calcTotal();
+        window.dispatchEvent(new CustomEvent("itemsUpdated"));
+    });
+}

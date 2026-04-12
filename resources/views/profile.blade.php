@@ -22,11 +22,32 @@
                         </div>
                     @endif
 
+                    @if (session('status') === 'google-connected')
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fa-brands fa-google me-2"></i> Google account connected successfully.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    @if (session('status') === 'google-already')
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="fa-brands fa-google me-2"></i> Your account is already connected to Google.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    @error('google')
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fa-solid fa-circle-exclamation me-2"></i>{{ $message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @enderror
+
                     {{-- Avatar Display Section --}}
                     <div class="mx-auto mb-4 position-relative" style="width: 120px; height: 120px;">
 
-                        @if (Auth::user()->isGoogleUser())
-                            {{-- Google User: Display Google Avatar --}}
+                        @if (Auth::user()->isGoogleUser() && Auth::user()->created_with_google)
+                            {{-- Google sign-up: avatar from Google --}}
                             <img src="{{ Auth::user()->google_avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=6366f1&color=fff&size=120' }}"
                                 alt="Avatar" class="rounded-circle w-100 h-100 object-fit-cover shadow-sm"
                                 id="avatarPreview">
@@ -39,8 +60,8 @@
                                 id="avatarPreview">
                         @endif
 
-                        @if (!Auth::user()->isGoogleUser())
-                            {{-- Photo Upload Button (Only for Non-Google Users) --}}
+                        @if (! Auth::user()->isGoogleUser() || ! Auth::user()->created_with_google)
+                            {{-- Photo upload: email users and linked-Google (not Google-only sign-up) --}}
                             <form method="POST" action="{{ route('profile.photo') }}" enctype="multipart/form-data"
                                 id="photoForm">
                                 @csrf
@@ -52,8 +73,8 @@
                                     <i class="fa-solid fa-camera"></i>
                                 </button>
                             </form>
-                        @else
-                            {{-- Google Account Badge --}}
+                        @elseif (Auth::user()->isGoogleUser() && Auth::user()->created_with_google)
+                            {{-- Google Account Badge (Google-only sign-up) --}}
                             <span class="position-absolute bottom-0 end-0" title="Connected with Google"
                                 style="width:32px; height:32px;">
                                 <img src="https://www.google.com/favicon.ico" alt="Google"
@@ -72,6 +93,14 @@
                             <i class="fa-brands fa-google me-1 text-danger"></i>
                             Connected via Google
                         </p>
+                    @endif
+
+                    @if (! Auth::user()->isGoogleUser())
+                        <a href="{{ route('google.connect') }}"
+                            class="btn btn-outline-secondary btn-sm mt-2 d-inline-flex align-items-center gap-2">
+                            <i class="fa-brands fa-google"></i>
+                            Connect Google
+                        </a>
                     @endif
 
                     {{-- Account Status Badge --}}
@@ -96,8 +125,8 @@
                                 </button>
                             </li>
 
-                            {{-- Password Tab (Only for Non-Google Users) --}}
-                            @if (!Auth::user()->isGoogleUser())
+                            {{-- Password tab: email users and linked Google (not Google-only sign-up) --}}
+                            @if (! Auth::user()->isGoogleUser() || ! Auth::user()->created_with_google)
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link fw-semibold" id="password-tab" data-bs-toggle="tab"
                                         data-bs-target="#password-pane" type="button" role="tab">
@@ -124,8 +153,8 @@
                                     </div>
                                 @endif
 
-                                @if (Auth::user()->isGoogleUser())
-                                    {{-- Google User: Read-Only Info --}}
+                                @if (Auth::user()->isGoogleUser() && Auth::user()->created_with_google)
+                                    {{-- Google-only sign-up: read-only (identity from Google) --}}
                                     <div class="alert alert-info alert-dismissible fade show" role="alert">
                                         <i class="fa-brands fa-google me-2"></i>
                                         <strong>Google Connected Account:</strong> Your name and email are managed by your
@@ -189,8 +218,8 @@
                                 @endif
                             </div>
 
-                            {{-- TAB 2: Change Password (Only for Non-Google Users) --}}
-                            @if (!Auth::user()->isGoogleUser())
+                            {{-- TAB 2: Change Password --}}
+                            @if (! Auth::user()->isGoogleUser() || ! Auth::user()->created_with_google)
                                 <div class="tab-pane fade" id="password-pane" role="tabpanel">
 
                                     {{-- Success Message: Password Updated --}}
@@ -269,7 +298,7 @@
     @endif
 
     {{-- JavaScript: Photo preview and auto-submit on selection --}}
-    @if (!Auth::user()->isGoogleUser())
+    @if (! Auth::user()->isGoogleUser() || ! Auth::user()->created_with_google)
         <script>
             document.getElementById('photoInput')?.addEventListener('change', function() {
                 const file = this.files[0];

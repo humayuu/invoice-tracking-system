@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Sale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class ClientController extends Controller
@@ -27,6 +29,10 @@ class ClientController extends Controller
                 ->addColumn('action', function ($client) {
                     return '
                     <div class="d-flex justify-content-center gap-1">
+
+                     <a target="_blank" href="'.route('client.wise.invoices', $client->id).'" class="btn btn-sm px-3 btn-dark">
+                            Invoices
+                        </a>
 
                         <a href="'.route('client.show', $client->id).'" class="btn btn-sm btn-dark">
                             <i class="fa-solid fa-eye"></i>
@@ -73,7 +79,11 @@ class ClientController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:50',
             'credit_period' => 'required|in:15,30,45,60',
-            'email' => 'nullable|email|unique:clients,email',
+            'email' => [
+                'nullable',
+                'email',
+                Rule::unique('clients', 'email')->where(fn ($q) => $q->where('user_id', Auth::id())),
+            ],
             'phone' => 'nullable|string|min:11|max:15',
             'address' => 'required|string|max:500',
         ]);
@@ -82,7 +92,10 @@ class ClientController extends Controller
 
         Client::create($validated);
 
-        return redirect()->back()->with('success', 'Client Create Successfully');
+        return redirect()->back()->with([
+            'success' => 'Client Create Successfully',
+            'flash_action' => 'created',
+        ]);
     }
 
     /**
@@ -115,14 +128,23 @@ class ClientController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:50',
             'credit_period' => 'required|integer|in:15,30,45,60',
-            'email' => 'nullable|email|unique:clients,email,'.$client->id,
+            'email' => [
+                'nullable',
+                'email',
+                Rule::unique('clients', 'email')
+                    ->where(fn ($q) => $q->where('user_id', Auth::id()))
+                    ->ignore($client->id),
+            ],
             'phone' => 'nullable|string|min:11|max:15',
             'address' => 'required|string|max:500',
         ]);
 
         $client->update($validated);
 
-        return redirect()->route('client.index')->with('success', 'Client updated successfully.');
+        return redirect()->back()->with([
+            'success' => 'Client updated successfully.',
+            'flash_action' => 'updated',
+        ]);
     }
 
     /**
@@ -134,7 +156,26 @@ class ClientController extends Controller
 
         $client->delete();
 
-        return redirect()->route('client.index')->with('success', 'Client Deleted successfully.');
+        return redirect()->back()->with([
+            'success' => 'Client Deleted successfully.',
+            'flash_action' => 'deleted',
+        ]);
 
+    }
+
+    /**
+     * For Client Wise Invoice
+     */
+    public function clientWiseInvoices($id)
+    {
+        $client = Client::where('user_id', Auth::id())->findOrFail($id);
+
+        $invoices = Sale::where('user_id', Auth::id())
+            ->where('client_id', $client->id)
+            ->with('client')
+            ->orderByDesc('id')
+            ->get();
+
+        return view('clients.client_wise', compact('client', 'invoices'));
     }
 }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Purchase;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class SupplierController extends Controller
@@ -27,6 +29,10 @@ class SupplierController extends Controller
                 ->addColumn('action', function ($supplier) {
                     return '
                     <div class="d-flex justify-content-center gap-1">
+
+                        <a target="_blank" href="'.route('supplier.wise.invoices', $supplier->id).'" class="btn btn-sm px-3 btn-dark">
+                            Invoices
+                        </a>
 
                         <a href="'.route('supplier.show', $supplier->id).'" class="btn btn-sm btn-dark">
                             <i class="fa-solid fa-eye"></i>
@@ -73,7 +79,11 @@ class SupplierController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:50',
             'credit_period' => 'required|in:15,30,45,60',
-            'email' => 'nullable|email|unique:clients,email',
+            'email' => [
+                'nullable',
+                'email',
+                Rule::unique('suppliers', 'email')->where(fn ($q) => $q->where('user_id', Auth::id())),
+            ],
             'phone' => 'nullable|string|min:11|max:15',
             'address' => 'required|string|max:500',
         ]);
@@ -82,7 +92,10 @@ class SupplierController extends Controller
 
         Supplier::create($validated);
 
-        return redirect()->back()->with('success', 'Supplier Create Successfully');
+        return redirect()->back()->with([
+            'success' => 'Supplier Create Successfully',
+            'flash_action' => 'created',
+        ]);
     }
 
     /**
@@ -115,14 +128,23 @@ class SupplierController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:50',
             'credit_period' => 'required|integer|in:15,30,45,60',
-            'email' => 'nullable|email|unique:clients,email,'.$supplier->id,
+            'email' => [
+                'nullable',
+                'email',
+                Rule::unique('suppliers', 'email')
+                    ->where(fn ($q) => $q->where('user_id', Auth::id()))
+                    ->ignore($supplier->id),
+            ],
             'phone' => 'nullable|string|min:11|max:15',
             'address' => 'required|string|max:500',
         ]);
 
         $supplier->update($validated);
 
-        return redirect()->route('supplier.index')->with('success', 'Supplier updated successfully.');
+        return redirect()->back()->with([
+            'success' => 'Supplier updated successfully.',
+            'flash_action' => 'updated',
+        ]);
     }
 
     /**
@@ -134,7 +156,26 @@ class SupplierController extends Controller
 
         $supplier->delete();
 
-        return redirect()->route('supplier.index')->with('success', 'Supplier Deleted successfully.');
+        return redirect()->route('supplier.index')->with([
+            'success' => 'Supplier Deleted successfully.',
+            'flash_action' => 'deleted',
+        ]);
 
+    }
+
+    /**
+     * Purchase invoices for a supplier (current user only).
+     */
+    public function supplierWiseInvoices(int $id)
+    {
+        $supplier = Supplier::where('user_id', Auth::id())->findOrFail($id);
+
+        $invoices = Purchase::where('user_id', Auth::id())
+            ->where('supplier_id', $supplier->id)
+            ->with('supplier')
+            ->orderByDesc('id')
+            ->get();
+
+        return view('suppliers.supplier_wise', compact('supplier', 'invoices'));
     }
 }

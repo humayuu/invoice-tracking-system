@@ -14,6 +14,7 @@ class Purchase extends Model
         'invoice_date',
         'due_date',
         'invoice_no',
+        'po_no',
         'note',
         'amount',
         'status',
@@ -28,7 +29,7 @@ class Purchase extends Model
     public static function generateInvoiceNo(): string
     {
         do {
-            $invoice_no = 'INV-'.date('Ymd').'-'.rand(1000, 9999);
+            $invoice_no = 'INV-'.date('Ymd').'-'.random_int(1000, 9999);
         } while (self::where('invoice_no', $invoice_no)->exists());
 
         return $invoice_no;
@@ -44,6 +45,16 @@ class Purchase extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function purchaseItems()
+    {
+        return $this->hasMany(PurchaseItem::class);
     }
 
     protected static function boot()

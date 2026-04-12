@@ -50,7 +50,7 @@ class Sale extends Model
     public static function generateInvoiceNo(): string
     {
         do {
-            $invoice_no = 'INV-'.date('Ymd').'-'.rand(1000, 9999);
+            $invoice_no = 'INV-'.date('Ymd').'-'.random_int(1000, 9999);
         } while (self::where('invoice_no', $invoice_no)->exists());
 
         return $invoice_no;

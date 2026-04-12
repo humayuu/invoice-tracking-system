@@ -4,12 +4,6 @@
 @endsection
 @section('main')
     <div class="page-content p-4 flex-grow-1 overflow-auto">
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fa-solid fa-circle-check me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold mb-0">Suppliers <span class="badge text-bg-dark fs-5">{{ $supplierCount }}</span></h4>
             <a href="{{ route('supplier.create') }}" class="btn btn-primary shadow-sm">

@@ -16,6 +16,30 @@
     {{-- Favicon --}}
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
+    <style>
+        #app-toast-container .toast {
+            --bs-toast-max-width: 420px;
+            backdrop-filter: blur(8px);
+        }
+
+        #app-toast-container .toast.showing,
+        #app-toast-container .toast.show {
+            animation: appToastIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes appToastIn {
+            from {
+                opacity: 0;
+                transform: translateX(1.25rem);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -148,12 +172,15 @@
                             role="button">
                             @php $user = Auth::user(); @endphp
 
-                            @if ($user->google_avatar)
+                            @if ($user->created_with_google && $user->google_avatar)
                                 <img src="{{ $user->google_avatar }}" class="rounded-circle"
                                     style="width:50px; height:50px; object-fit:cover;">
                             @elseif ($user->profile_photo_path)
                                 <img src="{{ Storage::disk('public')->url($user->profile_photo_path) }}"
                                     class="rounded-circle" style="width:50px; height:50px; object-fit:cover;">
+                            @elseif ($user->google_avatar)
+                                <img src="{{ $user->google_avatar }}" class="rounded-circle"
+                                    style="width:50px; height:50px; object-fit:cover;">
                             @else
                                 <div class="rounded-circle bg-dark bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold"
                                     style="width:50px; height:50px; font-size:18px;">
@@ -182,6 +209,9 @@
                 </div>
             </header>
 
+            <div id="app-toast-container" class="toast-container position-fixed end-0 p-3"
+                style="top: 4.5rem; z-index: 1090;" aria-live="polite" aria-atomic="true"></div>
+
             @yield('main')
 
         </main>
@@ -189,6 +219,142 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    @php
+        $__successRaw = session('success');
+        $__flashAction = null;
+        if (is_string($__successRaw) && $__successRaw !== '') {
+            $fa = session('flash_action');
+            $__flashAction = in_array($fa, ['created', 'updated', 'deleted'], true) ? $fa : null;
+        }
+        $__appFlash = collect([
+            'success' => $__successRaw,
+            'error' => session('error'),
+            'warning' => session('warning'),
+            'info' => session('info'),
+        ])
+            ->map(fn ($v) => is_string($v) ? $v : (is_scalar($v) ? (string) $v : null))
+            ->filter(fn ($v) => $v !== null && $v !== '')
+            ->all();
+    @endphp
+    @if (! empty($__appFlash))
+        <script>
+            window.__appFlash = @json($__appFlash);
+            window.__appFlashAction = @json($__flashAction);
+        </script>
+    @endif
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof bootstrap === 'undefined' || !window.__appFlash) {
+                return;
+            }
+            const container = document.getElementById('app-toast-container');
+            if (!container) {
+                return;
+            }
+
+            const headerClass = {
+                success: 'bg-success text-white border-0',
+                error: 'bg-danger text-white border-0',
+                warning: 'bg-warning text-dark border-0',
+                info: 'bg-primary text-white border-0',
+            };
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-xmark',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info',
+            };
+            const titles = {
+                success: 'Success',
+                error: 'Something went wrong',
+                warning: 'Warning',
+                info: 'Notice',
+            };
+
+            Object.entries(window.__appFlash).forEach(function(entry) {
+                const type = entry[0];
+                const message = entry[1];
+                if (!message) {
+                    return;
+                }
+
+                let visualType = type;
+                if (type === 'success') {
+                    const action = window.__appFlashAction;
+                    if (action === 'updated') {
+                        visualType = 'info';
+                    } else if (action === 'deleted') {
+                        visualType = 'error';
+                    }
+                }
+
+                const toastEl = document.createElement('div');
+                toastEl.className = 'toast border-0 shadow mb-2 overflow-hidden';
+                toastEl.setAttribute('role', 'alert');
+                toastEl.setAttribute('aria-live', visualType === 'error' ? 'assertive' : 'polite');
+
+                const delay = 3000;
+                toastEl.setAttribute('data-bs-autohide', 'false');
+
+                const hClass = headerClass[visualType] || 'bg-secondary text-white border-0';
+                const closeWhite = visualType !== 'warning';
+
+                const header = document.createElement('div');
+                header.className = 'toast-header ' + hClass + ' d-flex align-items-center gap-2 py-2';
+                const icon = document.createElement('i');
+                icon.className = 'fa-solid ' + (icons[visualType] || 'fa-bell');
+                const strong = document.createElement('strong');
+                strong.className = 'me-auto small text-uppercase';
+                strong.style.letterSpacing = '0.04em';
+                let titleText = titles[visualType] || 'Notice';
+                if (type === 'success' && window.__appFlashAction === 'created') {
+                    titleText = 'Created';
+                } else if (type === 'success' && window.__appFlashAction === 'updated') {
+                    titleText = 'Updated';
+                } else if (type === 'success' && window.__appFlashAction === 'deleted') {
+                    titleText = 'Deleted';
+                }
+                strong.appendChild(document.createTextNode(titleText));
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn-close' + (closeWhite ? ' btn-close-white' : '');
+                btn.setAttribute('data-bs-dismiss', 'toast');
+                btn.setAttribute('aria-label', 'Close');
+                header.appendChild(icon);
+                header.appendChild(strong);
+                header.appendChild(btn);
+
+                const body = document.createElement('div');
+                body.className = 'toast-body bg-white text-dark small py-3';
+                body.appendChild(document.createTextNode(message));
+
+                toastEl.appendChild(header);
+                toastEl.appendChild(body);
+                container.appendChild(toastEl);
+
+                const t = new bootstrap.Toast(toastEl, {
+                    autohide: false,
+                    animation: true,
+                });
+
+                const hideTimer = window.setTimeout(function() {
+                    t.hide();
+                }, delay);
+
+                toastEl.addEventListener('hidden.bs.toast', function onHidden() {
+                    window.clearTimeout(hideTimer);
+                    toastEl.removeEventListener('hidden.bs.toast', onHidden);
+                    toastEl.remove();
+                });
+
+                t.show();
+            });
+
+            delete window.__appFlash;
+            delete window.__appFlashAction;
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ asset('assets/js/data-samples.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
@@ -199,12 +365,24 @@
 
     <script>
         $(document).ready(function() {
-            $('#clientFilter').select2({
-                theme: 'bootstrap-5',
-                placeholder: 'Search Client...',
-                allowClear: true,
-                width: '100%',
-            });
+            if ($('#clientFilter').length) {
+                $('#clientFilter').select2({
+                    theme: 'bootstrap-5',
+                    placeholder: 'Search Client...',
+                    allowClear: true,
+                    width: '100%',
+                    dropdownParent: $('body'),
+                });
+            }
+            if ($('#supplierFilter').length) {
+                $('#supplierFilter').select2({
+                    theme: 'bootstrap-5',
+                    placeholder: 'Search supplier...',
+                    allowClear: true,
+                    width: '100%',
+                    dropdownParent: $('body'),
+                });
+            }
             if ($('#salesTable').length) {
                 $('#salesTable').DataTable({
                     processing: true,
@@ -228,6 +406,54 @@
                         {
                             data: 'client',
                             name: 'client.name',
+                            orderable: false
+                        },
+                        {
+                            data: 'amount',
+                            name: 'amount',
+                            className: 'd-none d-md-table-cell'
+                        },
+                        {
+                            data: 'status',
+                            name: 'status'
+                        },
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    dom: '<"d-flex flex-wrap justify-content-between align-items-center gap-2 p-3"lf>rtip',
+                    language: {
+                        search: "",
+                        searchPlaceholder: "Search...",
+                    }
+                });
+            }
+            if ($('#purchaseTable').length) {
+                $('#purchaseTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: "{{ route('purchase.index') }}",
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            name: 'DT_RowIndex',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'invoice_no',
+                            name: 'invoice_no'
+                        },
+                        {
+                            data: 'invoice_date',
+                            name: 'invoice_date',
+                            className: 'd-none d-md-table-cell'
+                        },
+                        {
+                            data: 'supplier',
+                            name: 'supplier.name',
                             orderable: false
                         },
                         {

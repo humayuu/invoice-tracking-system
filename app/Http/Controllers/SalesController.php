@@ -18,6 +18,27 @@ use Yajra\DataTables\Facades\DataTables;
 class SalesController extends Controller
 {
     /**
+     * @param  array<int, array{item_name: string, quantity: mixed, price: mixed}>  $items
+     * @return array<int, array{item_name: string, quantity: float, price: float, total: float}>
+     */
+    protected function normalizedLineItems(array $items): array
+    {
+        $normalized = [];
+        foreach ($items as $item) {
+            $qty = round((float) $item['quantity'], 2);
+            $price = round((float) $item['price'], 2);
+            $normalized[] = [
+                'item_name' => $item['item_name'],
+                'quantity' => $qty,
+                'price' => $price,
+                'total' => round($qty * $price, 2),
+            ];
+        }
+
+        return $normalized;
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -40,8 +61,10 @@ class SalesController extends Controller
                 })
 
                 ->addColumn('client', function ($sale) {
-                    $initials = strtoupper(substr($sale->client->name, 0, 2));
                     $name = $sale->client->name;
+                    $initials = function_exists('mb_strtoupper')
+                        ? mb_strtoupper(mb_substr($name, 0, 2))
+                        : strtoupper(substr($name, 0, 2));
 
                     return '
                         <div class="d-flex align-items-center gap-2">
@@ -134,9 +157,10 @@ class SalesController extends Controller
         try {
             DB::beginTransaction();
 
-            $client = Client::findOrFail($request->client_id);
+            $client = Client::where('user_id', Auth::id())->findOrFail($request->client_id);
             $dueDate = Carbon::parse($request->invoice_date)->addDays($client->credit_period);
-            $amount = collect($request->items)->sum('sub_total');
+            $lineItems = $this->normalizedLineItems($request->items);
+            $amount = collect($lineItems)->sum('total');
             $status = Carbon::today()->gte($dueDate) ? 'overdue' : 'pending';
 
             $sale = Sale::create([
@@ -151,18 +175,21 @@ class SalesController extends Controller
                 'status' => $status,
             ]);
 
-            foreach ($request->items as $item) {
+            foreach ($lineItems as $item) {
                 $sale->salesItems()->create([
                     'item_name' => $item['item_name'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
-                    'total' => $item['sub_total'],
+                    'total' => $item['total'],
                 ]);
             }
 
             DB::commit();
 
-            return redirect()->route('sales.index')->with('success', 'Invoice created successfully!');
+            return redirect()->back()->with([
+                'success' => 'Invoice created successfully!',
+                'flash_action' => 'created',
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -190,7 +217,8 @@ class SalesController extends Controller
         abort_if($sale->user_id !== Auth::id(), 403);
 
         if ($sale->status === 'paid') {
-            return redirect()->back();
+            return redirect()->route('sales.show', $sale)
+                ->with('error', 'Paid invoices cannot be edited.');
         }
         $clients = Client::where('user_id', Auth::id())->get();
         $sale->load(['client', 'salesItems']);
@@ -204,12 +232,15 @@ class SalesController extends Controller
     public function update(StoreSaleRequest $request, Sale $sale)
     {
         abort_if($sale->user_id !== Auth::id(), 403);
+        abort_if($sale->status === 'paid', 403);
+
         try {
             DB::beginTransaction();
 
-            $client = Client::findOrFail($request->client_id);
+            $client = Client::where('user_id', Auth::id())->findOrFail($request->client_id);
             $dueDate = Carbon::parse($request->invoice_date)->addDays($client->credit_period);
-            $amount = collect($request->items)->sum('sub_total');
+            $lineItems = $this->normalizedLineItems($request->items);
+            $amount = collect($lineItems)->sum('total');
             $status = Carbon::today()->gte($dueDate) ? 'overdue' : 'pending';
 
             $sale->update([
@@ -224,18 +255,21 @@ class SalesController extends Controller
 
             $sale->salesItems()->delete();
 
-            foreach ($request->items as $item) {
+            foreach ($lineItems as $item) {
                 $sale->salesItems()->create([
                     'item_name' => $item['item_name'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
-                    'total' => $item['sub_total'],
+                    'total' => $item['total'],
                 ]);
             }
 
             DB::commit();
 
-            return redirect()->route('sales.index')->with('success', 'Invoice updated successfully!');
+            return redirect()->back()->with([
+                'success' => 'Invoice updated successfully!',
+                'flash_action' => 'updated',
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -256,21 +290,25 @@ class SalesController extends Controller
             $sale->delete();
         });
 
-        return redirect()->route('sales.index')->with('success', 'Invoice deleted successfully!');
+        return redirect()->back()->with([
+            'success' => 'Invoice deleted successfully!',
+            'flash_action' => 'deleted',
+        ]);
     }
 
     /**
      * For Update Sale invoice Status
      */
-    public function saleStatus($id)
+    public function saleStatus(Sale $sale)
     {
-        $sale = Sale::findOrFail($id);
         abort_if($sale->user_id !== Auth::id(), 403);
 
         $sale->update(['status' => 'paid']);
 
-        return redirect()->route('sales.index')->with('success', 'Status updated successfully!');
-
+        return redirect()->back()->with([
+            'success' => 'Status updated successfully!',
+            'flash_action' => 'updated',
+        ]);
     }
 
     /**
@@ -288,7 +326,11 @@ class SalesController extends Controller
      */
     public function invoiceExport($id)
     {
-        $invoice = 'invoice-'.now()->format('d-m-Y').'.xlsx';
+        $sale = Sale::findOrFail($id);
+        abort_if($sale->user_id !== Auth::id(), 403);
+
+        $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '-', $sale->invoice_no);
+        $invoice = 'invoice-'.$safeName.'-'.now()->format('d-m-Y').'.xlsx';
 
         return Excel::download(new SaleInvoiceExport($id), $invoice);
     }
@@ -299,9 +341,12 @@ class SalesController extends Controller
     public function invoicePdf($id)
     {
         $sale = Sale::with(['salesItems', 'client'])->findOrFail($id);
+        abort_if($sale->user_id !== Auth::id(), 403);
 
         $pdf = Pdf::loadView('pdf.invoice', compact('sale'));
 
-        return $pdf->download('invoice.pdf');
+        $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '-', $sale->invoice_no);
+
+        return $pdf->download('invoice-'.$safeName.'.pdf');
     }
 }

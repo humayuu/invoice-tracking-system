@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Sale;
+use App\Models\Purchase;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -10,33 +10,25 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SaleInvoiceExport implements FromView, ShouldAutoSize, WithStyles
+class PurchaseInvoiceExport implements FromView, ShouldAutoSize, WithStyles
 {
-    protected $saleId;
-
-    public function __construct($saleId)
-    {
-        $this->saleId = $saleId;
-    }
+    public function __construct(protected int $purchaseId) {}
 
     public function view(): View
     {
-        $sale = Sale::with(['client', 'salesItems'])
+        $purchase = Purchase::with(['supplier', 'purchaseItems'])
             ->where('user_id', Auth::id())
-            ->findOrFail($this->saleId);
+            ->findOrFail($this->purchaseId);
 
-        return view('export.invoice', compact('sale'));
+        return view('export.purchase_invoice', compact('purchase'));
     }
 
     public function styles(Worksheet $sheet)
     {
         return [
-            // Title row
             1 => [
                 'font' => ['bold' => true, 'size' => 14],
             ],
-
-            // Header row (items table)
             6 => [
                 'font' => ['bold' => true],
             ],

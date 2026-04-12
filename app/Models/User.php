@@ -24,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'google_id',
         'google_avatar',
+        'created_with_google',
         'profile_photo_path',
     ];
 
@@ -43,6 +44,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'created_with_google' => 'boolean',
         ];
     }
 
@@ -55,11 +57,11 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Check if user has password (not social-only)
+     * Whether the user can sign in with a password they chose (not Google-only signup).
      */
     public function hasPassword(): bool
     {
-        return ! is_null($this->password);
+        return ! $this->created_with_google;
     }
 
     /**
@@ -75,13 +77,17 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getProfilePhotoUrlAttribute(): string
     {
-        if ($this->isGoogleUser() && $this->google_avatar) {
+        if ($this->created_with_google && $this->google_avatar) {
             return $this->google_avatar;
         }
 
         if ($this->profile_photo_path) {
             return Storage::disk('public')
                 ->url($this->profile_photo_path);
+        }
+
+        if ($this->google_avatar) {
+            return $this->google_avatar;
         }
 
         return 'https://ui-avatars.com/api/?name='.urlencode($this->name)

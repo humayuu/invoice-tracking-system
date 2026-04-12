@@ -34,6 +34,13 @@
                             </div>
                         @endif
 
+                        @error('google')
+                            <div class="alert alert-danger d-flex align-items-center gap-2 py-2 mb-3" role="alert">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                                <span style="font-size: 0.875rem;">{{ $message }}</span>
+                            </div>
+                        @enderror
+
                         <!-- Mobile brand icon -->
                         <div class="d-flex d-md-none align-items-center gap-2 mb-4">
                             <div
@@ -71,7 +78,7 @@
                             <hr class="flex-grow-1 m-0" style="border-color:#e5e7eb;">
                         </div>
 
-                        <form method="POST" action="{{ route('login') }}">
+                        <form method="POST" action="{{ route('login.store') }}">
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label" for="email">Email address</label>

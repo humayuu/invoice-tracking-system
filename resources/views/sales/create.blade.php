@@ -4,9 +4,6 @@
 @endsection
 @section('main')
     <div class="page-content p-4 flex-grow-1 overflow-auto fade-up">
-        @if (session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold mb-0">Create Sale Invoice</h4>
             <a href="{{ route('sales.index') }}" class="btn btn-outline-secondary">
@@ -23,9 +20,10 @@
                     <div class="card shadow rounded-4 border-0 h-100">
                         <div class="card-body p-4">
 
-                            <div class="form-floating mb-3">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="clientFilter">Client</label>
                                 <select class="form-select" id="clientFilter" name="client_id">
-                                    <option value="" disabled selected>Select Client</option>
+                                    <option value=""></option>
                                     @foreach ($clients as $client)
                                         <option value="{{ $client->id }}" data-period="{{ $client->credit_period ?? 0 }}">
                                             {{ $client->name }}

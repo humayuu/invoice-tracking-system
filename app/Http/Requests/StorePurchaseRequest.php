@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
-class StoreSaleRequest extends FormRequest
+class StorePurchaseRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,9 +16,9 @@ class StoreSaleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_id' => [
+            'supplier_id' => [
                 'required',
-                Rule::exists('clients', 'id')->where(fn ($q) => $q->where('user_id', Auth::id())),
+                Rule::exists('suppliers', 'id')->where(fn ($q) => $q->where('user_id', Auth::id())),
             ],
             'invoice_date' => ['required', 'date'],
             'due_date' => ['required', 'date', 'after_or_equal:invoice_date'],
@@ -35,8 +35,8 @@ class StoreSaleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'client_id.required' => 'Please select a client.',
-            'client_id.exists' => 'The selected client is invalid.',
+            'supplier_id.required' => 'Please select a supplier.',
+            'supplier_id.exists' => 'The selected supplier is invalid.',
             'invoice_date.required' => 'Invoice date is required.',
             'due_date.required' => 'Due date is required.',
             'items.required' => 'Please add at least one item.',

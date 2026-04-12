@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Sale;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -15,7 +16,10 @@ class SalesExport implements FromCollection, WithColumnWidths, WithHeadings, Wit
 {
     public function collection()
     {
-        return Sale::with(['client', 'salesItems'])->latest()->get();
+        return Sale::with(['client', 'salesItems'])
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->get();
     }
 
     public function headings(): array

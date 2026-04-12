@@ -4,13 +4,6 @@
 @endsection
 @section('main')
     <div class="page-content p-4 flex-grow-1 overflow-auto fade-up">
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if (session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
-
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold mb-0">Sales List <span class="badge text-bg-dark fs-5">{{ $salesCount }}</span></h4>
             <a href="{{ route('sales.create') }}" class="btn btn-primary shadow-sm">

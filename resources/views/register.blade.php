@@ -31,6 +31,13 @@
                             <h4 class="fw-bold mb-0">InvoiceTracker</h4>
                         </div>
 
+                        @error('google')
+                            <div class="alert alert-danger d-flex align-items-center gap-2 py-2 mb-3" role="alert">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                                <span style="font-size: 0.875rem;">{{ $message }}</span>
+                            </div>
+                        @enderror
+
                         <!-- Google Button -->
                         <a href="{{ route('google.redirect') }}"
                             class="btn w-100 py-2 fw-semibold mb-3 d-flex align-items-center justify-content-center gap-2"
