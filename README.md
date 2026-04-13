@@ -139,18 +139,4 @@ GOOGLE_REDIRECT_URL="${APP_URL}/auth/google/callback"
 
 Configure the redirect URI in the Google Cloud console to match `GOOGLE_REDIRECT_URL`.
 
-## Mail
 
-By default `.env` uses `MAIL_MAILER=log` (emails go to the log). Change mail settings when you need real delivery.
-
-## Tests
-
-```bash
-composer run test
-# or
-php artisan test
-```
-
-## License
-
-This project uses the **MIT** license (see `composer.json` / Laravel defaults).
