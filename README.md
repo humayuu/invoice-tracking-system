@@ -27,7 +27,7 @@ Searchable client list with credit period and quick actions.
 - **PHP** `^8.3` with common extensions: `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `fileinfo` (and `zip` / `gd` as needed for Excel/PDF)
 - **Composer** 2.x
 - **Node.js** 18+ and **npm** (for Vite/Tailwind if you change frontend assets)
-- **MySQL** 8+ (or MariaDB 10.3+), matching `.env.example`
+- **MySQL** 
 
 ## Quick start (local)
 
@@ -48,13 +48,7 @@ php artisan key:generate
 
 Edit `.env` and set your database:
 
-- `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (default database name in the example is `invoice_tracker`)
-
-Create the MySQL database before migrating:
-
-```sql
-CREATE DATABASE invoice_tracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
+- `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (default database name in the example is `invoice_tracker`
 
 ### 3. Database
 
