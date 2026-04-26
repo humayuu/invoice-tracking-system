@@ -47,39 +47,57 @@
     <div class="d-flex w-100 vh-100 overflow-hidden">
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar" id="sidebar" aria-label="Application navigation">
             <div class="sidebar-header d-flex align-items-center px-4 fw-bold fs-5">
-                <i class="fa-solid fa-chart-line sidebar-brand-icon"></i>
-                <a href="{{ url('/dashboard') }}"><span class="sidebar-brand-text">InvoiceTracker</span></a>
+                <i class="fa-solid fa-chart-line sidebar-brand-icon" aria-hidden="true"></i>
+                <a href="{{ auth()->user()->firstAccessibleUrl() }}"><span class="sidebar-brand-text">InvoiceTracker</span></a>
             </div>
-            <div class="sidebar-menu flex-grow-1 overflow-auto py-3">
-                <ul>
-                    <li><a href="{{ url('/dashboard') }}" class="sidebar-link"><i
-                                class="fa-solid fa-house fa-fw"></i><span>Dashboard</span></a></li>
-                    <li>
-                        <a href="{{ route('sales.index') }}" class="sidebar-link" aria-expanded="false">
-                            <i class="fa-solid fa-cart-shopping fa-fw"></i><span>Sales</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('purchase.index') }}" class="sidebar-link" aria-expanded="false">
-                            <i class="fa-solid fa-bag-shopping fa-fw"></i><span>Purchase</span>
-                        </a>
-                    </li>
-                    <li><a href="{{ route('client.index') }}" class="sidebar-link"><i
-                                class="fa-solid fa-users fa-fw"></i><span>Clients</span></a></li>
-                    <li><a href="{{ route('supplier.index') }}" class="sidebar-link"><i
-                                class="fa-solid fa-truck-field fa-fw"></i><span>Suppliers</span></a></li>
-                    <li><a href="{{ route('reports.index') }}" class="sidebar-link"><i
-                                class="fa-solid fa-file-invoice fa-fw"></i><span>Reports</span></a></li>
+            <nav class="sidebar-menu flex-grow-1 overflow-auto py-3" aria-label="Main">
+                <ul class="list-unstyled mb-0">
+                    @if (auth()->user()->canAccessModule('dashboard'))
+                        <li><a href="{{ route('dashboard') }}" class="sidebar-link"><i
+                                    class="fa-solid fa-house fa-fw" aria-hidden="true"></i><span>Dashboard</span></a></li>
+                    @endif
+                    @if (auth()->user()->canAccessModule('sales'))
+                        <li>
+                            <a href="{{ route('sales.index') }}" class="sidebar-link" aria-expanded="false">
+                                <i class="fa-solid fa-cart-shopping fa-fw" aria-hidden="true"></i><span>Sales</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (auth()->user()->canAccessModule('purchase'))
+                        <li>
+                            <a href="{{ route('purchase.index') }}" class="sidebar-link" aria-expanded="false">
+                                <i class="fa-solid fa-bag-shopping fa-fw" aria-hidden="true"></i><span>Purchase</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (auth()->user()->canAccessModule('clients'))
+                        <li><a href="{{ route('client.index') }}" class="sidebar-link"><i
+                                    class="fa-solid fa-users fa-fw" aria-hidden="true"></i><span>Clients</span></a></li>
+                    @endif
+                    @if (auth()->user()->canAccessModule('suppliers'))
+                        <li><a href="{{ route('supplier.index') }}" class="sidebar-link"><i
+                                    class="fa-solid fa-truck-field fa-fw" aria-hidden="true"></i><span>Suppliers</span></a></li>
+                    @endif
+                    @if (auth()->user()->canAccessModule('reports'))
+                        <li><a href="{{ route('reports.index') }}" class="sidebar-link"><i
+                                    class="fa-solid fa-file-invoice fa-fw" aria-hidden="true"></i><span>Reports</span></a></li>
+                    @endif
+                    @if (auth()->user()->is_admin)
+                        <li><a href="{{ route('admin.users.index') }}" class="sidebar-link"><i
+                                    class="fa-solid fa-user-gear fa-fw" aria-hidden="true"></i><span>Users</span></a></li>
+                    @endif
                 </ul>
-            </div>
+            </nav>
         </aside>
 
-        <main class="main-content d-flex flex-column flex-grow-1 min-vh-0">
+        <main class="main-content d-flex flex-column flex-grow-1 min-vh-0" id="main-content">
             <header class="topbar d-flex align-items-center justify-content-between px-4 bg-body shadow-sm z-2">
                 <div class="d-flex align-items-center gap-3">
-                    <button id="sidebar-toggle" aria-label="Toggle Sidebar"><i class="fa-solid fa-bars"></i></button>
+                    <button id="sidebar-toggle" type="button"
+                        aria-label="Open or close navigation menu" aria-controls="sidebar" aria-expanded="true"><i
+                            class="fa-solid fa-bars" aria-hidden="true"></i></button>
                 </div>
                 <div class="d-flex align-items-center gap-4">
                     <div class="dropdown">
@@ -163,15 +181,9 @@
                             role="button">
                             @php $user = Auth::user(); @endphp
 
-                            @if ($user->created_with_google && $user->google_avatar)
-                                <img src="{{ $user->google_avatar }}" class="rounded-circle"
-                                    style="width:50px; height:50px; object-fit:cover;">
-                            @elseif ($user->profile_photo_path)
+                            @if ($user->profile_photo_path)
                                 <img src="{{ Storage::disk('public')->url($user->profile_photo_path) }}"
                                     class="rounded-circle" style="width:50px; height:50px; object-fit:cover;">
-                            @elseif ($user->google_avatar)
-                                <img src="{{ $user->google_avatar }}" class="rounded-circle"
-                                    style="width:50px; height:50px; object-fit:cover;">
                             @else
                                 <div class="rounded-circle bg-dark bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold"
                                     style="width:50px; height:50px; font-size:18px;">
@@ -187,7 +199,6 @@
                                         class="fa-solid fa-user me-2 text-muted"></i>
                                     Profile</a></li>
                             <hr class="dropdown-divider">
-                            </li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
@@ -213,11 +224,9 @@
 
     @php
         $__successRaw = session('success');
-        $__flashAction = null;
-        if (is_string($__successRaw) && $__successRaw !== '') {
-            $fa = session('flash_action');
-            $__flashAction = in_array($fa, ['created', 'updated', 'deleted'], true) ? $fa : null;
-        }
+        $__allowedFlashActions = ['created', 'updated', 'deleted', 'delete_blocked'];
+        $fa = session('flash_action');
+        $__flashAction = in_array($fa, $__allowedFlashActions, true) ? $fa : null;
         $__appFlash = collect([
             'success' => $__successRaw,
             'error' => session('error'),
@@ -305,6 +314,8 @@
                     titleText = 'Updated';
                 } else if (type === 'success' && window.__appFlashAction === 'deleted') {
                     titleText = 'Deleted';
+                } else if (type === 'error' && window.__appFlashAction === 'delete_blocked') {
+                    titleText = 'Cannot delete';
                 }
                 strong.appendChild(document.createTextNode(titleText));
                 const btn = document.createElement('button');
@@ -579,20 +590,21 @@
     </script>
 
     {{-- Global delete confirmation (same style as invoice show pages) --}}
-    <div class="modal fade" id="globalDeleteModal" tabindex="-1" aria-labelledby="globalDeleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="globalDeleteModal" tabindex="-1" role="dialog"
+        aria-modal="true" aria-labelledby="globalDeleteTitle" aria-describedby="globalDeleteMessage" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-0 pb-0">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close dialog"></button>
                 </div>
                 <div class="modal-body text-center px-4 pb-0">
                     <div class="mb-3">
                         <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10"
-                            style="width: 70px; height: 70px;">
+                            style="width: 70px; height: 70px;" aria-hidden="true">
                             <i class="fa-solid fa-trash-can text-danger" style="font-size: 28px;" aria-hidden="true"></i>
                         </div>
                     </div>
-                    <h5 class="fw-bold mb-2" id="globalDeleteTitle">Delete?</h5>
+                    <h2 class="h5 fw-bold mb-2" id="globalDeleteTitle">Delete?</h2>
                     <p class="text-muted mb-1" id="globalDeleteMessage">Are you sure?</p>
                     <p class="text-danger small mb-0">
                         <i class="fa-solid fa-circle-exclamation me-1" aria-hidden="true"></i>
@@ -604,7 +616,7 @@
                     <form id="globalDeleteForm" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger px-4">
+                        <button type="submit" class="btn btn-danger px-4" id="globalDeleteConfirmBtn">
                             <i class="fa-solid fa-trash me-1" aria-hidden="true"></i>Delete
                         </button>
                     </form>

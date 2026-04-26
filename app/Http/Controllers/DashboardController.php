@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DashboardViewRequest;
 use App\Models\Client;
 use App\Models\Purchase;
 use App\Models\Sale;
 use App\Models\Supplier;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(DashboardViewRequest $request): View
     {
-        $userId = Auth::id();
+        $userId = $request->user()->id;
 
         $totalSales = (float) Sale::where('user_id', $userId)->sum('amount');
         $totalPurchases = (float) Purchase::where('user_id', $userId)->sum('amount');

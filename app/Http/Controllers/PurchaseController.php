@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\PurchaseExport;
 use App\Exports\PurchaseInvoiceExport;
 use App\Http\Requests\StorePurchaseRequest;
+use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -196,7 +197,7 @@ class PurchaseController extends Controller
         return view('purchase.edit', compact('purchase', 'suppliers'));
     }
 
-    public function update(StorePurchaseRequest $request, Purchase $purchase)
+    public function update(UpdatePurchaseRequest $request, Purchase $purchase)
     {
         abort_if($purchase->user_id !== Auth::id(), 403);
         abort_if($purchase->status === 'paid', 403);

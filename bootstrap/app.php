@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureUserCanAccessModule;
+use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\UpdateOverdueInvoices;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(UpdateOverdueInvoices::class);
 
+        $middleware->alias([
+            'active' => EnsureUserIsActive::class,
+            'admin' => EnsureUserIsAdmin::class,
+            'can.module' => EnsureUserCanAccessModule::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

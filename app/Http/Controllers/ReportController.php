@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PartySummaryPdfRequest;
 use App\Support\OutstandingSummary;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,7 +30,7 @@ class ReportController extends Controller
         ));
     }
 
-    public function salesSummaryPdf(Request $request)
+    public function salesSummaryPdf(PartySummaryPdfRequest $request)
     {
         return $this->partySummaryPdf(
             $request,
@@ -55,7 +55,7 @@ class ReportController extends Controller
     /**
      * @param  Collection<int, object>  $rows
      */
-    private function partySummaryPdf(Request $request, Collection $rows, string $documentTitle, string $partyColumnLabel, string $filePrefix)
+    private function partySummaryPdf(PartySummaryPdfRequest $request, Collection $rows, string $documentTitle, string $partyColumnLabel, string $filePrefix)
     {
         $generatedAt = now()->format('d M Y').' at '.now()->format('H:i');
 

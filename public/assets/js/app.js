@@ -10,7 +10,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const sidebarToggleBtn = document.getElementById('sidebar-toggle');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
 
+    function syncSidebarToggleExpanded() {
+        if (!sidebarToggleBtn || !sidebar) return;
+        const mobile = window.innerWidth < 992;
+        const expanded = mobile
+            ? sidebar.classList.contains('show')
+            : !sidebar.classList.contains('collapsed');
+        sidebarToggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    }
+
     if (sidebarToggleBtn && sidebar) {
+        syncSidebarToggleExpanded();
         sidebarToggleBtn.addEventListener('click', () => {
             // For mobile view (below 992px)
             if (window.innerWidth < 992) {
@@ -20,13 +30,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 // For desktop view
                 sidebar.classList.toggle('collapsed');
             }
+            syncSidebarToggleExpanded();
         });
     }
 
-    if (sidebarOverlay) {
+    if (sidebarOverlay && sidebar) {
         sidebarOverlay.addEventListener('click', () => {
             sidebar.classList.remove('show');
             sidebarOverlay.classList.remove('show');
+            syncSidebarToggleExpanded();
         });
     }
 
@@ -36,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
             sidebar.classList.remove('show');
             if(sidebarOverlay) sidebarOverlay.classList.remove('show');
         }
+        syncSidebarToggleExpanded();
     });
 
     // --- 2. Dark Mode Toggle ---

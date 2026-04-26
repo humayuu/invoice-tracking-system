@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\SaleInvoiceExport;
 use App\Exports\SalesExport;
 use App\Http\Requests\StoreSaleRequest;
+use App\Http\Requests\UpdateSaleRequest;
 use App\Models\Client;
 use App\Models\Sale;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -230,7 +231,7 @@ class SalesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreSaleRequest $request, Sale $sale)
+    public function update(UpdateSaleRequest $request, Sale $sale)
     {
         abort_if($sale->user_id !== Auth::id(), 403);
         abort_if($sale->status === 'paid', 403);

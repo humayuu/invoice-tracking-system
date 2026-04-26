@@ -1,41 +1,90 @@
-# Invoice Tracker
+# Invoice Tracking System
 
-A Laravel application for tracking **sales** and **purchase** invoices, **clients** and **suppliers**, with PDF/Excel exports, **reports**, and a **dashboard**. Each user’s data is isolated (multi-tenant by `user_id`). Authentication uses **Laravel Fortify**; **Google sign-in** is optional via Laravel Socialite.
+A **Laravel** web app for **sales and purchase invoices**, **clients** and **suppliers**, with a **dashboard**, **outstanding summaries**, **PDF/Excel exports**, and **database notifications** for overdue items. Each account’s data is scoped by `user_id` (multi-tenant style).
+
+---
+
+## Features
+
+- **Dashboard** — totals, client/supplier counts, recent invoices  
+- **Sales & purchase** — line items, statuses (`pending` / `overdue` / `paid`), mark paid, PDF & Excel per invoice  
+- **Clients & suppliers** — credit periods, per-party pending/overdue statements (PDF/Excel)  
+- **Reports** — outstanding summaries with optional PDF export  
+- **Admin users** — CRUD, `is_admin`, module **permissions** (`dashboard`, `sales`, `purchase`, `clients`, `suppliers`, `reports`), **active/inactive** accounts  
+- **Notifications** — overdue sale/purchase alerts (in-app)  
+- **Profile** — name, email, password (Fortify), optional profile photo  
+
+---
+
+## Tech stack
+
+| Area | Choice |
+|------|--------|
+| Framework | **Laravel 13**, **PHP 8.3+** |
+| Auth | **Laravel Fortify** (login, profile, password change) |
+| UI | **Blade**, **Bootstrap 5**, **Font Awesome**, **DataTables** (server-side) |
+| PDF | **barryvdh/laravel-dompdf** |
+| Spreadsheets | **maatwebsite/excel** |
+| Tooling | **Vite**, **Pint**, **PHPUnit** |
+
+Validation for writes uses **Form Request** classes under `app/Http/Requests/`.
+
+---
+
+## Authentication & access
+
+- **Email + password** only (no OAuth). **No public registration** — admins create users under `/admin/users`.
+- **No forgot-password / email reset** in this build. **Email verification** is not used.
+- **`is_admin`**: full module access + user management.
+- **Non-admins**: JSON **`permissions`** on `users`; at least one module (or admin) is required for meaningful access.
+- **`is_active`**: inactive users cannot sign in; middleware blocks authenticated inactive users.
+- After login, redirect goes to the **first allowed module** (or **Profile** if none).
+
+| Permission key | Routes / area |
+|----------------|----------------|
+| `dashboard` | `/dashboard` |
+| `sales` | Sales CRUD, exports |
+| `purchase` | Purchase CRUD, exports |
+| `clients` | Clients CRUD, statements |
+| `suppliers` | Suppliers CRUD, statements |
+| `reports` | `/reports`, summary PDFs |
+
+---
 
 ## Screenshots
 
 ### Login
 
-Email/password and optional Google sign-in.
-
 ![Login page](docs/screenshots/login.png)
 
 ### Dashboard
-
-Account totals, client/supplier counts, and recent invoices.
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
 ### Clients
 
-Searchable client list with credit period and quick actions.
-
 ![Clients](docs/screenshots/clients.png)
+
+*(Add more images under `docs/screenshots/` if you like.)*
+
+---
 
 ## Requirements
 
-- **PHP** `^8.3` with common extensions: `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `fileinfo` (and `zip` / `gd` as needed for Excel/PDF)
-- **Composer** 2.x
-- **Node.js** 18+ and **npm** (for Vite/Tailwind if you change frontend assets)
-- **MySQL** 
+- **PHP** `^8.3` with extensions: `pdo_mysql` (or `pdo_sqlite`), `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `fileinfo`; `zip` / `gd` help Excel/PDF  
+- **Composer** 2.x  
+- **Node.js** 18+ and **npm** (for Vite when editing bundled assets)  
+- **MySQL** (recommended for production) or **SQLite** for local/demo  
 
-## Quick start (local)
+---
 
-### 1. Clone and install PHP dependencies
+## Quick start
+
+### 1. Clone and install
 
 ```bash
-git clone <repository-url> invoice-tracker
-cd invoice-tracker
+git clone https://github.com/YOUR_USERNAME/invoice-tracking-system.git
+cd invoice-tracking-system
 composer install
 ```
 
@@ -46,91 +95,122 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-Edit `.env` and set your database:
+Edit `.env` — at minimum set `APP_URL` and database:
 
-- `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (default database name in the example is `invoice_tracker`
+**MySQL (typical)**
 
-### 3. Database
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=invoice_tracker
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+**SQLite (quick local try)**
+
+```env
+DB_CONNECTION=sqlite
+# DB_DATABASE=/absolute/path/to/database.sqlite
+```
+
+Then create the file if needed: `touch database/database.sqlite`
+
+### 3. Migrate and seed admin
 
 ```bash
 php artisan migrate
-```
-
-Optional demo user (see `database/seeders/DatabaseSeeder.php`):
-
-```bash
 php artisan db:seed
 ```
 
-### 4. Storage link (profile photos)
+Default admin (from `Database/Seeders/DatabaseSeeder.php`):
+
+| Field | Value |
+|-------|--------|
+| Email | `admin@example.com` |
+| Password | `password` |
+
+`db:seed` is **idempotent** for that email (`updateOrCreate`). **Change this password before any shared or production deploy.**
+
+### 4. Storage (profile photos)
 
 ```bash
 php artisan storage:link
 ```
 
-### 5. Run the app
+### 5. Run
 
 ```bash
 php artisan serve
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000). Register a new account or use the seeded user if you ran `db:seed`.
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000), sign in, then use **Users** (admin) to add staff and assign modules.
 
-### 6. Frontend assets (optional)
+### Frontend assets (optional)
 
-The main UI uses Blade views and files under `public/assets/`. The repo also includes **Vite** for `resources/css/app.css` and `resources/js/app.js`. If you work on those:
+Main UI uses `public/assets/`. If you edit `resources/css/app.css` or `resources/js/app.js`:
 
 ```bash
 npm install
-npm run build    # production build
-# or
-npm run dev      # dev server with HMR
+npm run build
+# or: npm run dev
 ```
 
-## One-command setup (Composer)
+### Composer shortcuts
 
-After creating the MySQL database and configuring `.env`, you can run:
+| Command | What it does |
+|---------|----------------|
+| `composer run setup` | Install, `.env`, `key:generate`, `migrate --force`, `npm install`, `npm run build` — **does not** seed |
+| `composer run dev` | `serve`, queue listener, `pail`, Vite (needs Node) |
+| `composer run test` | Clears config cache, runs `php artisan test` |
+
+---
+
+## Overdue invoices & notifications
+
+- **Scheduled:** `invoices:check-overdue` runs **daily at 09:00** (`routes/console.php`) and sends **database notifications** for overdue sales/purchases (without spamming duplicates).
+- **On each web request:** middleware also moves `pending` rows past due date to `overdue` so the UI stays consistent.
+
+For notifications to send on schedule in production, configure a cron entry:
 
 ```bash
-composer run setup
+* * * * * cd /path/to/project && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-This runs `composer install`, ensures `.env`, `key:generate`, `migrate --force`, `npm install`, and `npm run build`. You still need MySQL reachable and `DB_*` correct first.
+---
 
-## Full local dev stack
-
-To run the HTTP server, queue listener, log tail, and Vite together:
+## Testing
 
 ```bash
-composer run dev
+composer run test
 ```
 
-Requires Node/npm installed.
+The default feature test hits `/` without migrating; if middleware touches DB tables, enable **`RefreshDatabase`** (or run migrations) in tests for a green CI run. Expanding coverage for auth, permissions, and invoice flows is a good next step.
 
-## Queues and scheduled tasks
+---
 
-`.env` uses `QUEUE_CONNECTION=database`. For queued jobs locally:
+## Database notes
 
-```bash
-php artisan queue:work
-```
+- **New installs:** `php artisan migrate` is enough.  
+- Older databases that ever had Google-only columns can drop unused columns manually; current code does not use them.
 
-A daily schedule runs overdue-invoice checks (`invoices:check-overdue` at 09:00). In development you can trigger the scheduler manually:
+---
 
-```bash
-php artisan schedule:work
-```
+## Security reminders
 
-## Optional: Google OAuth
+- Rotate **`admin@example.com`** after first login in non-local environments.  
+- Keep `.env` out of version control; use strong `APP_KEY` and DB credentials.  
+- Review **HTTPS**, session cookie flags, and server headers before production.
 
-To enable “Sign in with Google”, add to `.env`:
+---
 
-```env
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URL="${APP_URL}/auth/google/callback"
-```
+## License
 
-Configure the redirect URI in the Google Cloud console to match `GOOGLE_REDIRECT_URL`.
+Open source under the **MIT** license (see `composer.json` in this repo). Add a root `LICENSE` file if you want GitHub to show the standard MIT text.
 
+---
 
+## Author
+
+Add your name, portfolio, or LinkedIn here when you publish the repo.

@@ -2,18 +2,26 @@
 
 namespace App\Models;
 
-use App\Notifications\CustomVerifyEmail;
 use Database\Factories\UserFactory;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    /** @var list<string> */
+    public const MODULE_KEYS = [
+        'dashboard',
+        'sales',
+        'purchase',
+        'clients',
+        'suppliers',
+        'reports',
+    ];
 
     /**
      * Mass assignable attributes
@@ -22,10 +30,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'google_id',
-        'google_avatar',
-        'created_with_google',
         'profile_photo_path',
+        'is_admin',
+        'permissions',
+        'is_active',
     ];
 
     /**
@@ -44,32 +52,44 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'created_with_google' => 'boolean',
+            'is_admin' => 'boolean',
+            'permissions' => 'array',
+            'is_active' => 'boolean',
         ];
     }
 
-    /**
-     * Send custom email verification
-     */
-    public function sendEmailVerificationNotification(): void
+    public function canAccessModule(string $module): bool
     {
-        $this->notify(new CustomVerifyEmail);
+        if ($this->is_admin) {
+            return true;
+        }
+
+        $permissions = $this->permissions;
+
+        return is_array($permissions) && in_array($module, $permissions, true);
     }
 
     /**
-     * Whether the user can sign in with a password they chose (not Google-only signup).
+     * First module URL the user may open after login (profile is always allowed separately).
      */
-    public function hasPassword(): bool
+    public function firstAccessibleUrl(): string
     {
-        return ! $this->created_with_google;
-    }
+        $map = [
+            'dashboard' => fn () => route('dashboard'),
+            'sales' => fn () => route('sales.index'),
+            'purchase' => fn () => route('purchase.index'),
+            'clients' => fn () => route('client.index'),
+            'suppliers' => fn () => route('supplier.index'),
+            'reports' => fn () => route('reports.index'),
+        ];
 
-    /**
-     * Check if user registered via Google
-     */
-    public function isGoogleUser(): bool
-    {
-        return ! is_null($this->google_id);
+        foreach ($map as $module => $resolver) {
+            if ($this->canAccessModule($module)) {
+                return $resolver();
+            }
+        }
+
+        return route('profile');
     }
 
     /**
@@ -77,17 +97,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getProfilePhotoUrlAttribute(): string
     {
-        if ($this->created_with_google && $this->google_avatar) {
-            return $this->google_avatar;
-        }
-
         if ($this->profile_photo_path) {
             return Storage::disk('public')
                 ->url($this->profile_photo_path);
-        }
-
-        if ($this->google_avatar) {
-            return $this->google_avatar;
         }
 
         return 'https://ui-avatars.com/api/?name='.urlencode($this->name)

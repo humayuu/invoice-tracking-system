@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PendingOverdueStatementExport;
+use App\Http\Requests\StoreClientRequest;
+use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use App\Models\Sale;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -79,20 +80,9 @@ class ClientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreClientRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:50',
-            'credit_period' => 'required|in:15,30,45,60',
-            'email' => [
-                'nullable',
-                'email',
-                Rule::unique('clients', 'email')->where(fn ($q) => $q->where('user_id', Auth::id())),
-            ],
-            'phone' => 'nullable|string|min:11|max:15',
-            'address' => 'required|string|max:500',
-        ]);
-
+        $validated = $request->validated();
         $validated['user_id'] = Auth::id();
 
         Client::create($validated);
@@ -126,25 +116,11 @@ class ClientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Client $client)
+    public function update(UpdateClientRequest $request, Client $client)
     {
         abort_if($client->user_id !== Auth::id(), 403);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:50',
-            'credit_period' => 'required|integer|in:15,30,45,60',
-            'email' => [
-                'nullable',
-                'email',
-                Rule::unique('clients', 'email')
-                    ->where(fn ($q) => $q->where('user_id', Auth::id()))
-                    ->ignore($client->id),
-            ],
-            'phone' => 'nullable|string|min:11|max:15',
-            'address' => 'required|string|max:500',
-        ]);
-
-        $client->update($validated);
+        $client->update($request->validated());
 
         return redirect()->back()->with([
             'success' => 'Client updated successfully.',

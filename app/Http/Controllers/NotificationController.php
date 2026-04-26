@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MarkAllNotificationsReadRequest;
+use App\Http\Requests\MarkNotificationReadRequest;
+
 class NotificationController extends Controller
 {
-    public function markRead(string $id)
+    public function markRead(MarkNotificationReadRequest $request)
     {
-        $notification = auth()->user()
+        $id = $request->validated('id');
+
+        $notification = $request->user()
             ->notifications()
             ->findOrFail($id);
 
@@ -21,9 +26,9 @@ class NotificationController extends Controller
             $notification->data['purchase_id']);
     }
 
-    public function markAllRead()
+    public function markAllRead(MarkAllNotificationsReadRequest $request)
     {
-        auth()->user()->unreadNotifications->markAsRead();
+        $request->user()->unreadNotifications->markAsRead();
 
         return response()->json(['success' => true]);
     }
