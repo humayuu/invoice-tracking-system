@@ -146,12 +146,3 @@ php artisan serve
 ```
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000), sign in, then use **Users** (admin) to add staff and assign modules.
-
-
-
-```bash
-npm install
-npm run build
-# or: npm run dev
-
-Add your name, portfolio, or LinkedIn here when you publish the repo.
