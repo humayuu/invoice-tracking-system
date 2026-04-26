@@ -147,9 +147,7 @@ php artisan serve
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000), sign in, then use **Users** (admin) to add staff and assign modules.
 
-### Frontend assets (optional)
 
-Main UI uses `public/assets/`. If you edit `resources/css/app.css` or `resources/js/app.js`:
 
 ```bash
 npm install
