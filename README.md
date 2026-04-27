@@ -1,6 +1,6 @@
 # Invoice Tracking System
 
-A **Laravel** web app for **sales and purchase invoices**, **clients** and **suppliers**, with a **dashboard**, **outstanding summaries**, **PDF/Excel exports**, and **database notifications** for overdue items. Each account’s data is scoped by `user_id` (multi-tenant style).
+A **Laravel** web app for **sales and purchase invoices**, **clients** and **suppliers**, with a **dashboard**, **outstanding summaries**, **PDF/Excel exports**, and **database notifications** for overdue items..
 
 ---
 
